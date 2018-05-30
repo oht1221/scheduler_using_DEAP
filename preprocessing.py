@@ -1,3 +1,4 @@
+#-*-coding:utf-8-*-
 from cnc import *
 from job import *
 import xlrd
@@ -11,7 +12,7 @@ import time
 def read_CNCs(input, CNCs):
     workbook = xlrd.open_workbook(input)
 
-    worksheet = workbook.sheet_by_name("기계정보")
+    worksheet = workbook.sheet_by_name('기계정보')
 
     n_cols = worksheet.ncols
     n_rows = worksheet.nrows

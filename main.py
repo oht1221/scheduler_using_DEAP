@@ -1,7 +1,6 @@
 
 import time
-import scheduler
-import genetic
+from preprocessing import make_job_pool
 from deap import tools
 from deap import base, creator
 import random
@@ -15,8 +14,8 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
     POP_SIZE = 30
-    IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = scheduler.make_job_pool(JOB_POOL)
-    scheduler.read_CNCs('./hansun2.xlsx', CNCs)
+    IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL)
+    #preprocessing.read_CNCs('./hansun2.xlsx', CNCs)
 
 
     machines = {}
@@ -28,13 +27,14 @@ if __name__ == "__main__":
     standard = int(standard)
 
 
-    creator.create("FitnessMin", base.Fitness, weights=(1.0, 1.0, 1.0))
+    creator.create("n", base.Fitness, weights=(1.0, 1.0, 1.0))
     creator.create("Individual", list, fitness=creator.FitnessMin)
 
     toolbox = base.Toolbox()
-    toolbox.register("attribute", random.random)
-    toolbox.register("individual", tools.initRepeat, creator.Individual,
-                     toolbox.attribute, n=IND_SIZE)
+    toolbox.register("schedule", random.sample, JOB_POOL, IND_SIZE)
+    '''
+    toolbox.register("individual", tools.initIterate, creator.Individual,
+                     toolbox.indicies)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
     def evaluate(individual):
@@ -45,6 +45,4 @@ if __name__ == "__main__":
     toolbox.register("mutate", tools.mutShuffleIndexes(), indpb=0.05)
     toolbox.register("select", tools.selSPEA2(), k=)
     toolbox.register("evaluate", evaluate)
-
-
-
+'''

@@ -2,8 +2,6 @@ from deap import tools
 from deap import base, creator
 import random
 
-IND_SIZE =
-POP_SIZE = 30
 creator.create("FitnessMin", base.Fitness, weights = (1.0, 1.0, 1.0))
 creator.create("Individual", list, fitness = creator.FitnessMin)
 

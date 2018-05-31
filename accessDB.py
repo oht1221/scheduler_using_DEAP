@@ -8,7 +8,7 @@ def AccessDB():
     username = 'Han_Eng_Back'
     password = 'HseAdmin1991'
     cnxn = pyodbc.connect(('DRIVER={ODBC Driver 13 for SQL Server};SERVER='+server +
-                                  ';데이터베이스='+database+';UID='+username+';PWD='+password).decode('utf-8'))
+                                  ';데이터베이스='+database+';UID='+username+';PWD='+password))
     cursor = cnxn.cursor()
 
     return cursor

@@ -4,6 +4,7 @@ from preprocessing import make_job_pool
 from deap import tools
 from deap import base, creator
 import random
+
 import cnc
 import accessDB
 from collections import deque
@@ -27,14 +28,23 @@ if __name__ == "__main__":
     standard = int(standard)
 
 
-    creator.create("n", base.Fitness, weights=(1.0, 1.0, 1.0))
+    creator.create("FitnessMin", base.Fitness, weights=(1.0, 1.0, 1.0))
     creator.create("Individual", list, fitness=creator.FitnessMin)
 
     toolbox = base.Toolbox()
     toolbox.register("schedule", random.sample, JOB_POOL, IND_SIZE)
-    '''
     toolbox.register("individual", tools.initIterate, creator.Individual,
-                     toolbox.indicies)
+                     toolbox.schedule)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    pop = toolbox.population(n = POP_SIZE)
+    for i in range(POP_SIZE):
+        indv = pop[i]
+        print("---------------------indiv %d---------------------"%(i))
+        for job in indv:
+            print(job.getWorkno())
+        evaluate(indv)
+        print("---------------------indiv %d---------------------"%(i))
+    '''
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
     def evaluate(individual):

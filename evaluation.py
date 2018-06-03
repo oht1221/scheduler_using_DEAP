@@ -1,5 +1,25 @@
 import datetime
+import numpy as np
+import copy
 from job import unit
+
+
+def invert_linear_normalize(fitnesses, avgs, mins, c= None):
+    scaled = []
+    for i in range(avgs):
+        normalized = avgs[i] * (fitnesses[i] - mins[i]) / (avgs[i] - mins[i])
+        scaled.append(normalized)
+    return scaled
+
+def invert_sigma_normalize(fitnesses, avgs, sigmas, c):
+    scaled = []
+    for i in range(len(avgs)):
+        normalized = ((fitnesses[i] - avgs[i] + c * sigmas[i]) / sigmas[i]) #standardization
+        if normalized > 0:
+            scaled.append(normalized)
+        else:
+            scaled.append(0)
+    return scaled
 
 def splitPool(job_pool, normPool, hexPool):
 
@@ -74,7 +94,7 @@ def interpret2(machines, chromosome, CNCs):
 
     return interpreted
 
-def evaluate(individual, standard, machines, CNCs):
+def pre_evaluate(individual, standard, machines, CNCs):
     ichr = interpret2(machines, individual, CNCs)
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
@@ -113,7 +133,14 @@ def evaluate(individual, standard, machines, CNCs):
             LAST_JOB_EXECUTION = time_left_of_machine
 
     output['jobs'] = int(TOTAL_DELAYED_JOBS_COUNT)
-    output['time'] = int(TOTAL_DELAYED_TIME / (3600))
-    output['last'] = int(LAST_JOB_EXECUTION / (3600))
+    output['time'] = int(TOTAL_DELAYED_TIME)
+    output['last'] = int(LAST_JOB_EXECUTION)
+
 
     return output
+
+
+def evaluate(individual, normalization, avgs, params, c = None):
+    scaled = normalization(individual.fitness.values, avgs, params, c)
+    return scaled
+

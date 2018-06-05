@@ -29,18 +29,22 @@ if __name__ == "__main__":
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
-
-    creator.create("FitnessMin", base.Fitness, weights=(1.0, 1.0, 1.0))
-    creator.create("Individual", list, fitness=creator.FitnessMin)
+    creator.create("FitnessMul", base.Fitness, weights=(-1.0, -1.0, -1.0))
+    creator.create("Individual", list, metrics = dict, fitness=creator.FitnessMul)
 
     toolbox = base.Toolbox()
     toolbox.register("schedule", random.sample, JOB_POOL, IND_SIZE)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.schedule)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-    pop = toolbox.population(n = POP_SIZE)
+
+    toolbox.register("selSPEA2", tools.selSPEA2) # top 0.5% of the whole will be selected
+    toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
+
+    pop = toolbox.population(n=POP_SIZE)
     JOBS = []
     TIMES = []
     LAST = []
+
     for i in range(POP_SIZE):
         indv = pop[i]
         print("---------------------indiv %d---------------------"%(i))
@@ -57,7 +61,7 @@ if __name__ == "__main__":
         print(last)
         LAST.append(last)
         print("---------------------indiv %d---------------------"%(i))
-        indv.fitness.values = [result['jobs'], result['time'], result['last']]
+        indv.fitness.metrics = {'jobs' : result['jobs'], 'time' : result['time'], 'last' : result['last']}
        # print(pop[i].fitness)
     avgs = [np.average(JOBS), np.average(TIMES), np.average(LAST)]
     sigmas = [np.std(JOBS), np.std(TIMES), np.std(LAST)]
@@ -65,7 +69,18 @@ if __name__ == "__main__":
     #print(avgs, sigmas, mins)
     for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
-        #print(pop[i].fitness)
+        print(pop[i].fitness)
+
+    selected = toolbox.selSPEA2(individuals=pop, k=3)
+    print("3 pareto optimals")
+    for i in range(3):
+        print(selected[i].fitness)
+
+    #selected = toolbox.selTournamentDCD(individuals = pop, k = 3)
+    #for i in range(3):
+    #    print(selected[i].fitness)
+
+
 '''
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 

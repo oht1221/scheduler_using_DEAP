@@ -1,4 +1,3 @@
-#-*-coding:utf-8-*-
 from cnc import *
 from job import *
 import xlrd

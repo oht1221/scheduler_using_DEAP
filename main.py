@@ -5,12 +5,10 @@ import numpy as np
 import genetic_operators
 from preprocessing import make_job_pool
 from preprocessing import read_CNCs
-from deap import tools
-from deap import base, creator
-from evaluation import pre_evaluate
-from evaluation import evaluate
-from evaluation import invert_sigma_normalize
-from evaluation import invert_linear_normalize
+from deap import tools, benchmarks, base, creator, algorithms
+import time, array, random, copy, math
+import matplotlib.pyplot as plt
+from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate
 from collections import deque
 
 
@@ -19,11 +17,12 @@ if __name__ == "__main__":
     JOB_POOL = deque()
     READY_POOL = deque()
     IN_PROGRESS = deque()
+
     NGEN = 1000
-    POP_SIZE = MU = 30
+    POP_SIZE =  MU = 30
+    MUTPB = 0.1
     LAMBDA = 60
     CXPB = 0.8
-    MUTPB = 0.1
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL)
     read_CNCs('./hansun2.xlsx', CNCs)
 
@@ -42,11 +41,13 @@ if __name__ == "__main__":
     toolbox.register("schedule", random.sample, JOB_POOL, IND_SIZE)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.schedule)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-    toolbox.register("cxOrdered", tools.cxOrdered)
+    toolbox.register("mate", tools.cxPartialyMatched)
     toolbox.register("inversion_with_displacement_mutation", genetic_operators.inversion_with_displacement_mutation)
     toolbox.register("selSPEA2", tools.selSPEA2) # top 0.5% of the whole will be selected
     toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
-    toolbox.regeister("selNSGA2", tools.selNSGA2)
+    toolbox.register("select", tools.selNSGA2)
+
+
     pop = toolbox.population(n=POP_SIZE)
     hof = tools.ParetoFront()
     for i in range(POP_SIZE):
@@ -76,6 +77,7 @@ if __name__ == "__main__":
     avgs = [np.average(JOBS), np.average(TIMES), np.average(LAST)]
     sigmas = [np.std(JOBS), np.std(TIMES), np.std(LAST)]
     mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
+    toolbox.register("evaluate", evaluate, invert_sigma_normalize, avgs, sigmas, 3)
     #print(avgs, sigmas, mins)
     for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
@@ -88,11 +90,12 @@ if __name__ == "__main__":
         print("indiv # :" + str(selected[i].individual_number) + " " + str(selected[i].fitness))
 
 
-    #selected = toolbox.selTournamentDCD(individuals = pop, k = 3)
-    #for i in range(3):
-    #    print(selected[i].fitness)
+    pop = toolbox.population(n = POP_SIZE)
+    pop = toolbox.select(pop, len(pop))
 
-
+    result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA,
+                                     cxpb = CXPB, mutpb = MUTPB, stats = None,
+                                     ngen = NGEN, verbose = False)
 '''
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 

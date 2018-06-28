@@ -72,14 +72,14 @@ if __name__ == "__main__":
         print(last)
         LAST.append(last)
         print("---------------------indiv %d---------------------"%(i))
-        indv.fitness.metrics = [jobs, time, last]
+        indv.metrics = [jobs, time, last]
        # print(pop[i].fitness)
     avgs = [np.average(JOBS), np.average(TIMES), np.average(LAST)]
     sigmas = [np.std(JOBS), np.std(TIMES), np.std(LAST)]
     mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
-    toolbox.register("evaluate", evaluate, invert_sigma_normalize, avgs, sigmas, 3)
+    toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
     #print(avgs, sigmas, mins)
-    for i in range(POP_SIZE):
+    '''for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
         print(pop[i].individual_number)
         print(pop[i].fitness)
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     print("3 pareto optimals")
     for i in range(3):
         print("indiv # :" + str(selected[i].individual_number) + " " + str(selected[i].fitness))
-
+    '''
 
     pop = toolbox.population(n = POP_SIZE)
     pop = toolbox.select(pop, len(pop))
@@ -96,6 +96,7 @@ if __name__ == "__main__":
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA,
                                      cxpb = CXPB, mutpb = MUTPB, stats = None,
                                      ngen = NGEN, verbose = False)
+
 '''
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 

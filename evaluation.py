@@ -14,6 +14,7 @@ def invert_linear_normalize(fitnesses, avgs, mins, c= None):
 def invert_sigma_normalize(fitnesses, avgs, sigmas, c):
     scaled = []
     for i in range(len(avgs)):
+        print(i)
         normalized = ((fitnesses[i] - avgs[i] + c * sigmas[i]) / sigmas[i]) #standardization
         if normalized > 0:
             scaled.append(normalized)
@@ -141,6 +142,6 @@ def pre_evaluate(individual, standard, machines, CNCs):
 
 
 def evaluate(individual, normalization, avgs, params, c = None):
-    scaled = normalization(individual.fitness.metrics, avgs, params, c)
+    scaled = normalization(individual.metrics, avgs, params, c)
     return scaled
 

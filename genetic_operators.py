@@ -40,7 +40,7 @@ def inversion_with_displacement_mutation(individual):
         individual[(replaced + i) % len(individual)] = temp[i]
 
 
-def order_crossover(individual_1, individual_2, start, end):
+def order_crossover(start, end, individual_1, individual_2):
     #print("chromosome %2d X chromosome %2d" % (parent_1, parent_2))
     p1 = individual_1
     p2 = individual_2

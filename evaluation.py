@@ -142,6 +142,7 @@ def pre_evaluate(individual, standard, machines, CNCs):
 
 
 def evaluate(individual, normalization, avgs, params, c = None):
+    print(individual.metrics)
     scaled = normalization(individual.metrics, avgs, params, c)
     return scaled
 

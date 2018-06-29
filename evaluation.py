@@ -14,7 +14,6 @@ def invert_linear_normalize(fitnesses, avgs, mins, c= None):
 def invert_sigma_normalize(fitnesses, avgs, sigmas, c):
     scaled = []
     for i in range(len(avgs)):
-        print(i)
         normalized = ((fitnesses[i] - avgs[i] + c * sigmas[i]) / sigmas[i]) #standardization
         if normalized > 0:
             scaled.append(normalized)

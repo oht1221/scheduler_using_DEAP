@@ -14,7 +14,7 @@ from collections import deque
 
 if __name__ == "__main__":
     CNCs = []
-    JOB_POOL = deque()
+    JOB_POOL = list()
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.schedule)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     #toolbox.register("mate", tools.cxPartialyMatched)
-    toolbox.register("mate", genetic_operators.order_crossover, int(POP_SIZE / 4), int(POP_SIZE / 4) * 2)
+    toolbox.register("mate", genetic_operators.order_crossover, int(IND_SIZE / 4), int(IND_SIZE / 4) * 2)
     toolbox.register("selSPEA2", tools.selSPEA2) # top 0.5% of the whole will be selected
     toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
     toolbox.register("select", tools.selNSGA2)

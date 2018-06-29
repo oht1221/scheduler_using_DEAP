@@ -170,7 +170,7 @@ def make_job_pool(job_pool):
         search_cycle_time(cursor2, cycle_time, GoodCd, Gubun, deli_start, deli_end)
         newJob = Job(workno=workno, workdate=workdate, good_num=GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
                      due=due_date_seconds, size=spec)
-        job_pool.appendleft(newJob)
+        job_pool.append(newJob)
         row = cursor1.fetchone()
 
     total_number = len(job_pool)

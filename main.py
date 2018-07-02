@@ -39,11 +39,12 @@ if __name__ == "__main__":
     creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int)
 
     toolbox = base.Toolbox()
-    toolbox.register("schedule", random.sample, JOB_POOL, IND_SIZE)
+    toolbox.register("schedule", random.sample, range(IND_SIZE), IND_SIZE)
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.schedule)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     #toolbox.register("mate", tools.cxPartialyMatched)
-    toolbox.register("mate", genetic_operators.order_crossover, int(IND_SIZE / 4), int(IND_SIZE / 4) * 3)
+    toolbox.register("mate", tools.cxOrdered)
+    toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
     toolbox.register("selSPEA2", tools.selSPEA2) # top 0.5% of the whole will be selected
     toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
     toolbox.register("select", tools.selNSGA2)
@@ -60,9 +61,9 @@ if __name__ == "__main__":
     for i in range(POP_SIZE):
         indiv = pop[i]
         print("---------------------indiv %d---------------------"%(i))
-        for job in indiv:
-            print(job.getWorkno())
-        result = pre_evaluate(indiv, standard, machines, CNCs)
+        for j in indiv:
+            print(JOB_POOL[j].getWorkno())
+        result = pre_evaluate(indiv, standard, machines, CNCs, JOB_POOL)
         jobs = result['jobs']
         time = result['time']
         last = result['last']
@@ -81,30 +82,22 @@ if __name__ == "__main__":
     sigmas = [np.std(JOBS), np.std(TIMES), np.std(LAST)]
     mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
     toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
-    #print(avgs, sigmas, mins)
-    '''for i in range(POP_SIZE):
+
+
+    print(avgs, sigmas, mins)
+    for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
         print(pop[i].individual_number)
         print(pop[i].fitness)
 
-    selected = toolbox.selSPEA2(individuals=pop, k=3)
-    print("3 pareto optimals")
-    for i in range(3):
+    '''
+    selected = toolbox.selSPEA2(individuals=pop, k=5)
+    print("5 pareto optimals")
+    for i in range(5):
         print("indiv # :" + str(selected[i].individual_number) + " " + str(selected[i].fitness))
     '''
-    result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA,
-                                     cxpb = CXPB, mutpb = MUTPB, stats = None,
-                                     ngen = NGEN, verbose = False)
 
-'''
-    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-
-    def evaluate(individual):
-        return sum(individual),
-
-
-    toolbox.register("mate", tools.cxPartialyMatched())
-    toolbox.register("mutate", tools.mutShuffleIndexes(), indpb=0.05)
-    toolbox.register("select", tools.selSPEA2(), k=)
-    toolbox.register("evaluate", evaluate)
-'''
+    result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
+                                       mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = None, verbose = None)
+    for ind in result:
+        print(ind.fi)

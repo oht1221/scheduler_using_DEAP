@@ -38,7 +38,7 @@ def inversion_with_displacement_mutation(individual):
     print(individual)
     for i in range(interval):
         individual[(replaced + i) % len(individual)] = temp[i]
-
+    return individual,
 
 def order_crossover(start, end, ind1, ind2):
     #print("chromosome %2d X chromosome %2d" % (parent_1, parent_2))

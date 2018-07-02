@@ -21,9 +21,11 @@ def invert_sigma_normalize(fitnesses, avgs, sigmas, c):
             scaled.append(0)
     return scaled
 
-def splitPool(job_pool, normPool, hexPool):
-
-    for i,assignment in enumerate(job_pool):
+def splitPool(indiv, normPool, hexPool, job_pool):
+    jobs = list()
+    for i in indiv:
+        jobs.append(job_pool[i])
+    for i,assignment in enumerate(jobs):
         if assignment.getType() == 0:
             normPool.append(assignment)
 
@@ -32,7 +34,7 @@ def splitPool(job_pool, normPool, hexPool):
 
     return 0
 
-def interpret2(machines, chromosome, CNCs):
+def interpret2(machines, indiv, CNCs, job_pool):
     for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
         v.clear()
     unAssigned = []
@@ -40,7 +42,7 @@ def interpret2(machines, chromosome, CNCs):
         machines[cnc.getNumber()] = list()'''
     normPool = list()
     hexPool = list()
-    splitPool(chromosome, normPool, hexPool)
+    splitPool(indiv, normPool, hexPool, job_pool)
     # normPool.sort(key=lambda x: x.getDue())
     # hexPool.sort(key=lambda x: x.getDue())
     # normPool = permutations(normPool,len(normPool))
@@ -94,8 +96,8 @@ def interpret2(machines, chromosome, CNCs):
 
     return interpreted
 
-def pre_evaluate(individual, standard, machines, CNCs):
-    ichr = interpret2(machines, individual, CNCs)
+def pre_evaluate(individual, standard, machines, CNCs, job_pool):
+    ichr = interpret2(machines, individual, CNCs, job_pool)
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
     LAST_JOB_EXECUTION = 0

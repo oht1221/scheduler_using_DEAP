@@ -15,6 +15,7 @@ from collections import deque
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
+
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.schedule)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     #toolbox.register("mate", tools.cxPartialyMatched)
-    toolbox.register("mate", genetic_operators.order_crossover, int(IND_SIZE / 4), int(IND_SIZE / 4) * 2)
+    toolbox.register("mate", genetic_operators.order_crossover, int(IND_SIZE / 4), int(IND_SIZE / 4) * 3)
     toolbox.register("selSPEA2", tools.selSPEA2) # top 0.5% of the whole will be selected
     toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
     toolbox.register("select", tools.selNSGA2)
@@ -91,9 +92,6 @@ if __name__ == "__main__":
     for i in range(3):
         print("indiv # :" + str(selected[i].individual_number) + " " + str(selected[i].fitness))
     '''
-
-    #pop = toolbox.select(pop, len(pop))
-
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA,
                                      cxpb = CXPB, mutpb = MUTPB, stats = None,
                                      ngen = NGEN, verbose = False)

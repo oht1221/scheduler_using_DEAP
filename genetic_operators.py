@@ -40,12 +40,14 @@ def inversion_with_displacement_mutation(individual):
         individual[(replaced + i) % len(individual)] = temp[i]
 
 
-def order_crossover(start, end, individual_1, individual_2):
+def order_crossover(start, end, ind1, ind2):
     #print("chromosome %2d X chromosome %2d" % (parent_1, parent_2))
-    p1 = individual_1
-    p2 = individual_2
-    print(individual_1)
-    print(individual_2)
+    p1 = ind1
+    p2 = ind2
+    print(ind1)
+    print(ind2)
+    print(start)
+    print(end)
     start = start
     end = end
     offspring1 = []
@@ -57,7 +59,6 @@ def order_crossover(start, end, individual_1, individual_2):
     not_selected_1 = list(range(0, len(p2))) #p1에서
     not_selected_2 = list(range(0, len(p1)))
     for i in range(start, end+1):
-        print(i)
         selected = p2.index(p1[i])
         not_selected_1.remove(selected)#여기서 선택 안된 것은 p2에서 선택할 것들
     i = end + 1

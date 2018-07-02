@@ -143,7 +143,9 @@ def pre_evaluate(individual, standard, machines, CNCs, job_pool):
 
 
 def evaluate(individual, normalization, avgs, params, c = None):
+    print(individual.metrics)
     scaled = normalization(individual.metrics, avgs, params, c)
     individual.fitness.values = scaled
+    print(scaled)
     return scaled
 

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 1000
+    NGEN = 100
     POP_SIZE =  MU = 30
     MUTPB = 0.1
     LAMBDA = 60
@@ -96,8 +96,10 @@ if __name__ == "__main__":
     for i in range(5):
         print("indiv # :" + str(selected[i].individual_number) + " " + str(selected[i].fitness))
     '''
-
+    hof = tools.ParetoFront()
+    stats = tools.Statistics()
+    stats.register("agv", np.average)
+    stats.register("min", np.min)
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
-                                       mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = None, verbose = None)
-    for ind in result:
-        print(ind.fi)
+                                       mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
+

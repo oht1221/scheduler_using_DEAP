@@ -20,14 +20,14 @@ def inversion_mutation(individual):
 
 def inversion_with_displacement_mutation(individual):
     dummy, interval, start, end = inversion_mutation(individual)
-    print(individual)
+    #print(individual)
     temp = []
     for i in range(interval):
         temp.append(individual[(start + i) % len(individual)])
-    print(temp)
+    #print(temp)
     random.seed(time.time() * 10 % 10)
     blocks = random.randrange(1, len(individual))
-    print("# of blocks :", blocks)
+    #print("# of blocks :", blocks)
     replaced = start
     replacing = (start + interval) % len(individual)
     for i in range(blocks):
@@ -35,7 +35,7 @@ def inversion_with_displacement_mutation(individual):
         individual[replacing % len(individual)] = 0
         replaced = (replaced + 1) % len(individual)
         replacing = (replacing + 1) % len(individual)
-    print(individual)
+    #print(individual)
     for i in range(interval):
         individual[(replaced + i) % len(individual)] = temp[i]
     return individual,

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 100
+    NGEN = 1000
     POP_SIZE =  MU = 30
     MUTPB = 0.1
     LAMBDA = 60
@@ -51,13 +51,12 @@ if __name__ == "__main__":
 
 
     pop = toolbox.population(n=POP_SIZE)
-    hof = tools.ParetoFront()
     for i in range(POP_SIZE):
         pop[i].individual_number = i
     JOBS = []
     TIMES = []
     LAST = []
-
+    '''
     for i in range(POP_SIZE):
         indiv = pop[i]
         print("---------------------indiv %d---------------------"%(i))
@@ -81,14 +80,15 @@ if __name__ == "__main__":
     avgs = [np.average(JOBS), np.average(TIMES), np.average(LAST)]
     sigmas = [np.std(JOBS), np.std(TIMES), np.std(LAST)]
     mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
-    toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
-
-
-    print(avgs, sigmas, mins)
+    '''
+    #toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
+    toolbox.register("evaluate", pre_evaluate, standard, machines, CNCs, JOB_POOL)
+    '''
     for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
         print(pop[i].individual_number)
         print(pop[i].fitness)
+    '''
 
     '''
     selected = toolbox.selSPEA2(individuals=pop, k=5)
@@ -102,4 +102,8 @@ if __name__ == "__main__":
     stats.register("min", np.min)
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
                                        mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
-
+    print("----------------------------------------------------------------------------------------------")
+    for ind in hof:
+        print(ind.fitness.values)
+    for ind in result:
+        print(ind)

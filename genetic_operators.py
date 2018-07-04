@@ -9,8 +9,8 @@ def inversion_mutation(individual):
     start = random.randrange(0, total) #시작점 (왼쪽)
     end = start + interval - 1
     i = 0
-    print(start)
-    print(end)
+    #print(start)
+    #print(end)
     while i < (interval / 2):
         temp = individual[(start + i) % total]
         individual[(start + i) % total] = individual[(end - i) % total]

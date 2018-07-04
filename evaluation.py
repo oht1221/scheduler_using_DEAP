@@ -96,7 +96,7 @@ def interpret2(machines, indiv, CNCs, job_pool):
 
     return interpreted
 
-def pre_evaluate(individual, standard, machines, CNCs, job_pool):
+def pre_evaluate(standard, machines, CNCs, job_pool, individual):
     ichr = interpret2(machines, individual, CNCs, job_pool)
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
@@ -137,9 +137,9 @@ def pre_evaluate(individual, standard, machines, CNCs, job_pool):
     output['jobs'] = int(TOTAL_DELAYED_JOBS_COUNT)
     output['time'] = int(TOTAL_DELAYED_TIME)
     output['last'] = int(LAST_JOB_EXECUTION)
-
-
-    return output
+    individual.fitness.values = [output['jobs'], output['time'], output['last']]
+    print(individual.fitness.values)
+    return individual.fitness.values
 
 
 def evaluate(individual, normalization, avgs, params, c = None):

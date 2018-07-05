@@ -6,7 +6,7 @@ import numpy as np
 import accessDB
 from itertools import permutations
 import time
-
+import copy
 
 def read_CNCs(input, CNCs):
     workbook = xlrd.open_workbook(input)
@@ -132,11 +132,11 @@ def initial_assignment(machines):
         row = cursor.fetchone()
 
 
-def make_job_pool(job_pool):
+def make_job_pool(job_pool, start, end):
     cursor1 = accessDB.AccessDB()
     cursor2 = accessDB.AccessDB()
-    deli_start = str(input("delivery date from: "))
-    deli_end = str(input("delivery date until: "))
+    deli_start = copy.deepcopy(start)
+    deli_end = copy.deepcopy(end)
     cursor1.execute("""
         select  w.workno, w.workdate, w.DeliveryDate, w.GoodCd,i.GoodCd as raw_materialCd, w.OrderQty,
 		case when i.Class3 = '061038' then 0 else 1 end as Gubun,

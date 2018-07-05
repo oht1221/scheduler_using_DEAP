@@ -34,6 +34,59 @@ def splitPool(indiv, normPool, hexPool, job_pool):
 
     return 0
 
+def interpret(machines, indiv, CNCs, job_pool):
+    for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
+        v.clear()
+    unAssigned = []
+    normPool = list()
+    hexPool = list()
+    splitPool(indiv, normPool, hexPool, job_pool)
+    # normPool.sort(key=lambda x: x.getDue())
+    # hexPool.sort(key=lambda x: x.getDue())
+    # normPool = permutations(normPool,len(normPool))
+    # hexPool = permutations(hexPool,len(hexPool))
+    normCNCs = list(filter(lambda x: x.getShape() == 0, CNCs))
+    hexCNCs = list(filter(lambda x: x.getShape() == 1, CNCs))
+    # sortedNormPool = sorted(normPool, key = lambda j : j.getDue())
+    # sortedHexPool = sorted(hexPool, key = lambda j: j.getDue())
+
+    for i, j in enumerate(normPool):
+
+        selected_CNCs = []
+        for c in normCNCs:
+            if c.getGround() <= j.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
+                selected_CNCs.append(c)
+
+        cnc = selected_CNCs[i % len(normPool)]
+        (machines[cnc.getNumber()]).append(j)
+        j.assignedTo(cnc)
+
+    for i, j in enumerate(hexPool):
+
+        selected_CNCs = []
+        for c in hexCNCs:
+            if (c.getGround() <= j.getSize() <= c.getCeiling()):  # size 맞는 CNC는 모두 찾음
+                selected_CNCs.append(c)
+
+        timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
+        if len(timeLefts) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
+            unAssigned.append(j)
+            continue
+        minValue = min(timeLefts)
+        minIndex = timeLefts.index(minValue)
+        cnc = selected_CNCs[minIndex]
+        (machines[cnc.getNumber()]).append(j)
+        j.assignedTo(cnc)
+
+    interpreted = {}
+    for k, v in machines.items():
+        interpreted[k] = []
+        for j in v:
+            new = unit(j)
+            interpreted[k].append(new)
+
+    return interpreted
+
 def interpret2(machines, indiv, CNCs, job_pool):
     for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
         v.clear()
@@ -138,6 +191,7 @@ def pre_evaluate(standard, machines, CNCs, job_pool, individual):
     output['time'] = int(TOTAL_DELAYED_TIME)
     output['last'] = int(LAST_JOB_EXECUTION)
     individual.fitness.values = [output['jobs'], output['time'], output['last']]
+    individual.assignment = ichr
     print(individual.fitness.values)
     return individual.fitness.values
 

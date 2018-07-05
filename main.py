@@ -19,24 +19,27 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 1000
+    NGEN = 500
     POP_SIZE =  MU = 30
     MUTPB = 0.1
     LAMBDA = 60
     CXPB = 0.8
-    IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL)
+    start = str(input("delivery date from: "))
+    end = str(input("delivery date until: "))
+    IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
     read_CNCs('./hansun2.xlsx', CNCs)
 
     machines = {}
     for cnc in CNCs:
         machines[float(cnc.getNumber())] = list()
+
     standard = input("schedule starts on : ")
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
     creator.create("FitnessMul", base.Fitness, weights=(-1.0, -1.0, -1.0))
-    creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int)
+    creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int, assignment = dict)
 
     toolbox = base.Toolbox()
     toolbox.register("schedule", random.sample, range(IND_SIZE), IND_SIZE)
@@ -102,8 +105,11 @@ if __name__ == "__main__":
     stats.register("min", np.min)
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
                                        mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
-    print("----------------------------------------------------------------------------------------------")
+    print("------------------------------------------Hall of fame------------------------------------------------")
     for ind in hof:
         print(ind.fitness.values)
+    print("------------------------------------------Hall of fame------------------------------------------------")
+
     for ind in result:
         print(ind)
+

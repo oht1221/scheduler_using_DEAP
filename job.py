@@ -131,12 +131,15 @@ class unit:
     def __init__(self, job, times = None):
         self.job = job
         self.times = times
-
+        self.delayed = False
+    def isDelayed(self):
+        return self.delayed
     def get_times(self):
         return self.times
     def get_job(self):
         return self.job
-
+    def set_delayed(self):
+        self.delayed = True
     def set_times(self, times):
         self.times = times
         return self.times

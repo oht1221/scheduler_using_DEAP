@@ -183,6 +183,7 @@ def pre_evaluate(standard, machines, CNCs, job_pool, individual):
             if diff < 0:
                 TOTAL_DELAYED_JOBS_COUNT += 1
                 TOTAL_DELAYED_TIME += (-1) * diff
+                u.set_delayed()
 
         if time_left_of_machine > LAST_JOB_EXECUTION:
             LAST_JOB_EXECUTION = time_left_of_machine

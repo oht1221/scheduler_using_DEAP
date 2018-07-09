@@ -10,7 +10,7 @@ import time, array, random, copy, math
 import matplotlib.pyplot as plt
 from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate
 from collections import deque
-
+import displays_results as dr
 
 if __name__ == "__main__":
     CNCs = []
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 1000
+    NGEN = 500
     POP_SIZE =  MU = 30
     MUTPB = 0.1
     LAMBDA = 60
@@ -110,6 +110,4 @@ if __name__ == "__main__":
         print(ind.fitness.values)
     print("------------------------------------------Hall of fame------------------------------------------------")
 
-    for ind in result:
-        print(ind)
-
+    dr.print_job_schedule(hof[0], start, end, standard, "optimized")

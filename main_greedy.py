@@ -11,7 +11,7 @@ import copy
 
 
 def sort_pool(ind, job_pool):
-    return sorted(ind, key = lambda job : job_pool[job].getDue(), reverse = True)
+    return sorted(ind, key = lambda job : (job_pool[job]).getDue(), reverse = True)
 
 
 
@@ -42,10 +42,13 @@ if __name__ == "__main__":
 
 
     indiv = toolbox.individual()
-    sort_pool(indiv, JOB_POOL)
+    indiv.sort(key = lambda job_number : JOB_POOL[job_number].getDue(), reverse = False)
+    for j in indiv:
+        print(JOB_POOL[j].getDue())
+
+
     pre_evaluate(standard, machines, CNCs, JOB_POOL, indiv)
 
     print(indiv.fitness.values)
 
-    dr.print_job_schedule(indiv, start, end, standard)
-
+    dr.print_job_schedule(indiv, start, end, standard, "greedy")

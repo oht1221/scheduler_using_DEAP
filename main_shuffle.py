@@ -5,6 +5,7 @@ import time
 from evaluation import pre_evaluate
 from deap import tools, benchmarks, base, creator
 import copy
+import displays_results as dr
 
 if __name__ == "__main__":
     CNCs = []
@@ -40,3 +41,6 @@ if __name__ == "__main__":
 
         print("best so far: ", end='')
         print(best.fitness.values)
+
+
+    dr.print_job_schedule(best, start, end, standard, "shuffle")

@@ -19,11 +19,11 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 500
+    NGEN = 400
     POP_SIZE =  MU = 30
-    MUTPB = 0.1
+    MUTPB = 0.25
     LAMBDA = 60
-    CXPB = 0.8
+    CXPB = 0.75
     start = str(input("delivery date from: "))
     end = str(input("delivery date until: "))
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
@@ -48,9 +48,9 @@ if __name__ == "__main__":
     #toolbox.register("mate", tools.cxPartialyMatched)
     toolbox.register("mate", tools.cxOrdered)
     toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
-    toolbox.register("selSPEA2", tools.selSPEA2) # top 0.5% of the whole will be selected
     toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
-    toolbox.register("select", tools.selNSGA2)
+    #toolbox.register("select", tools.selNSGA2)
+    toolbox.register("select", tools.selSPEA2)
 
 
     pop = toolbox.population(n=POP_SIZE)
@@ -110,4 +110,17 @@ if __name__ == "__main__":
         print(ind.fitness.values)
     print("------------------------------------------Hall of fame------------------------------------------------")
 
-    dr.print_job_schedule(hof[0], start, end, standard, "optimized")
+
+    how_many_from_the_top = int(input("How many schedules do you want to print out? : "))
+
+
+    while 1:
+        try:
+            for i in range(how_many_from_the_top):
+                dr.print_job_schedule(hof[i], start, end, standard, "optimized", i + 1)
+            break
+        except Exception as ex:
+            print("an erroe occured! : ", ex)
+            continue
+
+

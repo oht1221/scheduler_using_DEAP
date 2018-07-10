@@ -1,7 +1,7 @@
 import xlwt
 import datetime
 
-def print_job_schedule(indiv, start, end, standard, schedule_type):
+def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
     assignment = indiv.assignment
@@ -45,6 +45,6 @@ def print_job_schedule(indiv, start, end, standard, schedule_type):
                 worksheet.write(row, 5, datetime.datetime.fromtimestamp(due).strftime('%Y-%m-%d %H:%M:%S'))
                 worksheet.write(row, 6, type)
                 row += 1
-    output.save("./schedules/schedule_%s_%s_%s_%s.xls"%(schedule_type, start, end, standard))  # 엑셀 파일 저장 및 생성
+    output.save("./schedules/schedule_%s_%s_%s_%s_%d.xls"%(schedule_type, start, end, standard, rank))  # 엑셀 파일 저장 및 생성
 
     return

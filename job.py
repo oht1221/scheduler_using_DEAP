@@ -9,7 +9,7 @@ class Job:
         self.workno = workno
         self.worodate = workdate
         self.good_num = good_num
-        self.timeLeft = sum(time) * quantity + 60*60*24*5# (60*60)*(24)*(5) + (60*60) #타공정 소요시간 + 새셋팅 시간
+        self.timeLeft = sum(time) * quantity + 60*60*24*4# (60*60)*(24)*(5) + (60*60) #타공정 소요시간 + 새셋팅 시간
         self.type = type
         self.size = size
         self.quantity = quantity

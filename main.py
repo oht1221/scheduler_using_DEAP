@@ -34,6 +34,7 @@ if __name__ == "__main__":
         machines[float(cnc.getNumber())] = list()
 
     standard = input("schedule starts on : ")
+    standard_in_datetime = standard
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
@@ -49,8 +50,8 @@ if __name__ == "__main__":
     toolbox.register("mate", tools.cxOrdered)
     toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
     toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
-    #toolbox.register("select", tools.selNSGA2)
-    toolbox.register("select", tools.selSPEA2)
+    toolbox.register("select", tools.selNSGA2)
+    #toolbox.register("select", tools.selSPEA2)
 
 
     pop = toolbox.population(n=POP_SIZE)
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     while 1:
         try:
             for i in range(how_many_from_the_top):
-                dr.print_job_schedule(hof[i], start, end, standard, "optimized", i + 1)
+                dr.print_job_schedule(hof[i], start, end, standard_in_datetime, "optimized", i + 1)
             break
         except Exception as ex:
             print("an erroe occured! : ", ex)

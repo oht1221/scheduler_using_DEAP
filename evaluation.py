@@ -178,7 +178,7 @@ def pre_evaluate(standard, machines, CNCs, job_pool, individual):
                 time_left_of_machine += time_taken
 
             u.set_times(times)
-            diff = j.getDue() - (component_end_time + 60*60*24*6) #4일간 다른 공정
+            diff = j.getDue() - (component_end_time + 60*60*24*5) #5일간 다른 공정
             # time_left_of_machine += j.getTime()
             if diff < 0:
                 TOTAL_DELAYED_JOBS_COUNT += 1

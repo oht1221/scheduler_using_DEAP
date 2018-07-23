@@ -10,11 +10,6 @@ import job
 import copy
 
 
-def sort_pool(ind, job_pool):
-    return sorted(ind, key = lambda job : (job_pool[job]).getDue(), reverse = True)
-
-
-
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
@@ -43,9 +38,10 @@ if __name__ == "__main__":
 
 
     indiv = toolbox.individual()
-    indiv.sort(key = lambda job_number : JOB_POOL[job_number].getDue(), reverse = False)
+    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (-1) * JOB_POOL[job_number].getTime()), reverse = False)
     for j in indiv:
         print(JOB_POOL[j].getDue())
+        print(JOB_POOL[j].getTime())
 
 
     pre_evaluate(standard, machines, CNCs, JOB_POOL, indiv)

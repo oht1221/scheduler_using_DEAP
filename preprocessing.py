@@ -168,7 +168,7 @@ def make_job_pool(job_pool, start, end):
         Qty = row[5]
         Gubun = int(row[6])
         search_cycle_time(cursor2, cycle_time, GoodCd, Gubun, deli_start, deli_end)
-        if sum(cycle_time) * Qty > 60 * 60 * 24 * 3: #CNC 공정 만으로 4일 이상 걸리는 작업 제외
+        if sum(cycle_time) * Qty > 60 * 60 * 24 * 3 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
             row = cursor1.fetchone()
             continue
         newJob = Job(workno=workno, workdate=workdate, good_num=GoodCd, time=cycle_time, type=Gubun, quantity=Qty,

@@ -7,6 +7,13 @@ def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
     assignment = indiv.assignment
     modified = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;')
     color = modified
+    worksheet = output.add_sheet("비고")
+    worksheet.write(0, 0, "기준 시간")
+    worksheet.write(0, 1, standard)
+    worksheet.write(1, 0, "date_from")
+    worksheet.write(1, 1, start)
+    worksheet.write(2, 0, "date_until")
+    worksheet.write(2, 1, end)
     for key, value in assignment.items():
         row = 0
         worksheet = output.add_sheet(str(key))  # 시트 생성

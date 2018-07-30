@@ -1,4 +1,5 @@
 import xlrd
+import job
 input = '.\schedules\schedule_greedy_20180601_20180615_20180528_0.xls'
 machines = {}
 def read_from_excel(input, machine = None):
@@ -6,15 +7,29 @@ def read_from_excel(input, machine = None):
     CNC_number = float(1)
     worksheets = workbook.sheets()
     for i, sheet in enumerate(worksheets):
-        n_cols = sheet.ncols
+        #n_cols = sheet.ncols
         n_rows = sheet.nrows
+        prev_workno = 0
+        machines[i+1] =
         for j in range(1, n_rows):
             row = sheet.row_values(j)
             workno = row[0]
+            if prev_workno == workno:
+                continue
+            prev_workno = workno
             Goodcd = row[2]
+            start = row[3]
+            end = row[4]
+            due = row[5]
+            quantity = row[6]
+            new = job(workno, Goodcd, quantity = quantity)
 
-            print(row[0])
 read_from_excel(input)
+
+
+
+
+
 
 '''
 def make_job_pool(job_pool, start, end):

@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 class Job:
-    def __init__(self, workno, good_num, quantity, time ,type = None, size = None,  workdate = None, due = 0):
+    def __init__(self, workno, good_num, quantity, time = None ,type = None, size = None,  workdate = None, due = 0):
         self.workno = workno
         self.worodate = workdate
         self.good_num = good_num
@@ -51,6 +51,9 @@ class Job:
 
     def getDue(self):
         return self.due
+
+    def getQuantity(self):
+        return self.quantity
 
     def assignedTo(self, cnc):
         self.cnc = cnc

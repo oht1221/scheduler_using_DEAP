@@ -32,13 +32,16 @@ def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
         worksheet.col(4).width = 256 * 24
         worksheet.write(row, 5, "납기")
         worksheet.col(5).width = 256 * 24
+        worksheet.write(row, 6, "Qty")
+        worksheet.col(6).width = 256 * 24
         #worksheet.write(row, 5, str(indexOfMin))
         row += 1
         for i, unit in enumerate(value):
             times = unit.get_times()
             job = unit.get_job()
             due = unit.job.getDue()
-            type = unit.job.getType()
+            #type = unit.job.getType()
+            quantity = unit.job.getQuantity()
             for j, time in enumerate(times):
                 job_starts_from = time[0]
                 job_ends_at = time[1]
@@ -53,7 +56,7 @@ def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
                 worksheet.write(row, 3, job_starts_from)
                 worksheet.write(row, 4, job_ends_at)
                 worksheet.write(row, 5, datetime.datetime.fromtimestamp(due).strftime('%Y-%m-%d %H:%M:%S'))
-                worksheet.write(row, 6, type)
+                worksheet.write(row, 6, quantity)
                 row += 1
     output.save("./schedules/schedule_%s_%s_%s_%s_%d.xls"%(schedule_type, start, end, standard, rank))  # 엑셀 파일 저장 및 생성
 

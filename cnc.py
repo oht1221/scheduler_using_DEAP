@@ -1,7 +1,7 @@
 from job import *
 
 class CNC:
-    def __init__(self, number = ' ', ground = ' ', ceiling = ' ', shape = ' ', type = ' '):
+    def __init__(self, number = ' ', ground = ' ', ceiling = ' ', shape = ' ', type = ' ', note = ' '):
         self.number = number
         self.ground = ground
         self.ceiling = ceiling
@@ -9,13 +9,15 @@ class CNC:
         self.type = type
         self.jobQ = deque()
         self.timeLeft = 0
+        self.note = note
 
     def print_info(self):
-        print("CNC No. : %s\nSize : %s ~ %s\nshape : %s\ntype : %s\n"%(self.number,
+        print("CNC No. : %s\nSize : %s ~ %s\nshape : %s\ntype : %s\nnote: %s\n"%(self.number,
                                                                         self.ground,
                                                                         self.ceiling,
                                                                         self.shape,
-                                                                        self.type))
+                                                                        self.type,
+                                                                        self.note))
     def print_state(self):
         i = 0
         for j in self.jobQ:

@@ -15,11 +15,10 @@ import displays_results as dr
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
-
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 1000
+    NGEN = 500
     POP_SIZE =  MU = 30
     MUTPB = 0.25
     LAMBDA = 60
@@ -27,7 +26,7 @@ if __name__ == "__main__":
     start = str(input("delivery date from: "))
     end = str(input("delivery date until: "))
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
-    read_CNCs('./hansun2.xlsx', CNCs)
+    read_CNCs('./장비정보.xlsx', CNCs)
 
     machines = {}
     for cnc in CNCs:

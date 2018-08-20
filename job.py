@@ -5,14 +5,17 @@ import random
 import numpy as np
 
 class Job:
-    def __init__(self, workno, good_num, quantity, time = None ,type = None, size = None,  workdate = None, due = 0):
+    def __init__(self, workno, goodNo, goodCd, quantity, time = None ,type = None, size = None, rawNo = None, rawCd = None, due = 0):
         self.workno = workno
-        self.worodate = workdate
-        self.good_num = good_num
+        self.goodNo = goodNo
+        self.goodCd = goodCd
         self.timeLeft = sum(time) * quantity + 60*60*24*4# (60*60)*(24)*(5) + (60*60) #타공정 소요시간 + 새셋팅 시간
         self.type = type
         self.size = size
+        self.rawNo = rawNo
+        self.rawCd = rawCd
         self.quantity = quantity
+        self.cyctleTime = time
         #self.series = []
         self.series  = [Component(time[i], self, quantity) for i in range(len(time))]
         self.due  = due
@@ -39,8 +42,11 @@ class Job:
     def getSize(self):
         return self.size
 
-    def getGoodNum(self):
-        return self.good_num
+    def getGoodCd(self):
+        return self.goodCd
+
+    def getGoodNo(self):
+        return self.goodNo
 
     def getTime(self):
         self.timeLeft = sum([component.getTime() for component in self.series])
@@ -54,6 +60,9 @@ class Job:
 
     def getQuantity(self):
         return self.quantity
+
+    def getCycletime(self):
+        return self.cyctleTime
 
     def assignedTo(self, cnc):
         self.cnc = cnc

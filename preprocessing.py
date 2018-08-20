@@ -16,7 +16,7 @@ def read_CNCs(input, CNCs):
     n_cols = worksheet.ncols
     n_rows = worksheet.nrows
 
-    for i in range(2, 41):  # 1, 2, 6, 8, 10, 16, 22번 cnc
+    for i in range(2, 47):  # 1, 2, 6, 8, 10, 16, 22번 cnc
         row = worksheet.row_values(i)
         number = float(row[1])
         shape = None
@@ -26,8 +26,9 @@ def read_CNCs(input, CNCs):
             shape = 1
         type = str(row[3])
         size = str(row[4])
+        note = str(row[5])
 
-        if (size.find('~') == -1):
+        if size.find('~') == -1:
             continue  # '후가공' cnc는 제외
         ground = size.split('~')[0]
         ground = float(ground[1:])
@@ -35,8 +36,10 @@ def read_CNCs(input, CNCs):
         try:
             ceiling = float(size.split('~')[1])
         except ValueError:
-            ceiling = 100.0
-        cnc = CNC(number, ground, ceiling, shape, type)
+            ceiling = 1000.0
+
+        print(number)
+        cnc = CNC(number, ground, ceiling, shape, type, note)
         CNCs.append(cnc)
 
 
@@ -138,41 +141,69 @@ def make_job_pool(job_pool, start, end):
     deli_start = copy.deepcopy(start)
     deli_end = copy.deepcopy(end)
     cursor1.execute("""
-        select  w.workno, w.workdate, w.DeliveryDate, w.GoodCd,i.GoodCd as raw_materialCd, w.OrderQty,
-		case when i.Class3 = '061038' then 0 else 1 end as Gubun,
-		REPLACE(REPLACE(i.Spec, 'HEX.', ''),'HEX','') as Spec
+              select a.Workno, g.GoodNo, i.GoodNo as 'RawMaterialNo', g.GoodCd, i.GoodCd as 'RawMaterialCd',
+            a.OrderQty, a.DeliveryDate, 
+            --case when i.Class3 = '061038' then '단조' else 'HEX' end as Gubun,
+            case when m3.minorNm = 'Forging' then 0
+			when m3.minorNm = 'Hex Bar' then 1
+			when m3.minorNm = 'Round Bar' then 2
+			when m3.MinorNm = 'Square Bar' then 3
+			when m3.MinorNm = 'VALVE 선작업' then 4 end as RawMaterialGubun,
+            --    소재사이즈
+            ISNULL(i.Size, 0) as RawMaterialSize,
+            --    LOK FITTING 유무
+            case when g.Class3 = '061001' then 'Y' else 'N' end as LOKFITTINGYN,
+            --    LOK FITTING  일때 반제품 품번 사이즈에 따른 기계배정
+            case when g.Class3 = '061001' and ((LEFT(REPLACE(g.GoodNo, RTRIM(m4.MinorNm),''),3) = '-1-') or
+                                               (LEFT(REPLACE(g.GoodNo, RTRIM(m4.MinorNm),''),3) = '-2-') or
+                                               (LEFT(REPLACE(g.GoodNo, RTRIM(m4.MinorNm),''),3) = '-3-') or
+                                               (LEFT(REPLACE(g.GoodNo, RTRIM(m4.MinorNm),''),4) = '-2M-') or
+                                               (LEFT(REPLACE(g.GoodNo, RTRIM(m4.MinorNm),''),4) = '-3M-') or
+                                               (LEFT(REPLACE(g.GoodNo, RTRIM(m4.MinorNm),''),4) = '-4M-')) then 'Y' else 'N' end as LOKFITTINGSIZEYN
+     from TWorkreport_Han_Eng a
+     inner join TGood g on a.Goodcd = g.GoodCd
+     inner join TGood i on a.Raw_Materialcd = i.GoodCd
+     left outer join TMinor m3 on i.Class3 = m3.MinorCd
+     left outer join TMinor m4 on g.Class4 = m4.MinorCd
+     where DeliveryDate between """ + deli_start + """ and """ + deli_end + """
+       and PmsYn = 'N'
+       and ContractYn = '1'
+       --    단조    Hex Bar    Round Bar    Square Bar    VALVE 선작업
+       and i.Class3 in ('061038', '061039', '061040', '061048', '061126')
+     order by i.Class3, i.GoodNo, i.Size
 
-	    from TWorkreport_Han_Eng w
-	    inner join TGood i on w.Raw_Materialcd = i.GoodCd
-	    where w.DeliveryDate between """ + deli_start + """ and """ + deli_end + """
-	    and w.PmsYn = 'N'
-	    and w.ContractYn = '1'
-	    and i.Class2 not in ('060002', '060006')
-	    and i.Class3 in ('061038', '061039')
         """)
     row = cursor1.fetchone()
     while row:
         workno = row[0]
-        workdate = row[1]
-        due_date = row[2]
+        GoodNo = row[1]
+        rawMaterialNo = row[2]
+        rawMaterialCd = row[4]
+        due_date = row[6]
+
         due_date_seconds = time.mktime(
             (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 12, 0, 0, 0, 0, 0))  # 정오 기준
         due_date_seconds = int(due_date_seconds)
         GoodCd = row[3]
         cycle_time = []
-        try:
-            spec = float((row[7].split('-'))[0])  # 숫자(-문자) 형식 아닌 spec이 나오면 무시
+        rawMaterialSize = float(row[8])
+        '''try:
+            spec = float((row[8].split('-'))[0])  # 숫자(-문자) 형식 아닌 spec이 나오면 무시
         except ValueError:
             row = cursor1.fetchone()
-            continue
+            continue 
+        '''
         Qty = row[5]
-        Gubun = int(row[6])
+        Gubun = row[7]
         search_cycle_time(cursor2, cycle_time, GoodCd, Gubun, deli_start, deli_end)
-        if sum(cycle_time) * Qty > 60 * 60 * 24 * 3 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
+
+        if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
             row = cursor1.fetchone()
             continue
-        newJob = Job(workno=workno, workdate=workdate, good_num=GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
-                     due=due_date_seconds, size=spec)
+
+        newJob = Job(workno=workno, goodNo=GoodNo, goodCd = GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
+                            due=due_date_seconds, rawNo = rawMaterialNo, rawCd = rawMaterialCd, size=rawMaterialSize)
+
         job_pool.append(newJob)
         row = cursor1.fetchone()
 
@@ -191,34 +222,22 @@ def search_cycle_time(cursor, cycle_time, GoodCd, Gubun, deli_start, deli_end):
         flag3 = 0
 
     cursor.execute("""
-                    select  max(c.workdate) as workdate, j.DeliveryDate, j.GoodCd, j.OrderQty,
-    		        -- ISNULL(c.Prodqty,0) + ISNULL(c.Errqty,0) as Qty,
-    		        case when j.Class3 = '061038' then 0 else 1 end as Gubun,
-                    REPLACE(REPLACE(j.Spec, 'HEX.', ''),'HEX','')  as Spec,
-    			    c.Processcd, c.Cycletime , c.starttime, c.Endtime
-
-    		        from  TWorkReport_CNC c 
-    		        inner join
-    				(
-    				select  w.workno, /*, max(c.workdate) as workdate*/ w.DeliveryDate, w.GoodCd, w.OrderQty, i.Class3, i.Spec
-    				from TWorkreport_Han_Eng w
-    				inner join TGood i on w.Raw_Materialcd = i.GoodCd
-    				where w.DeliveryDate between """ + deli_start + """ and """ + deli_end + """ 
-    				and w.PmsYn = 'N'
-    				and w.ContractYn = '1'
-    				and i.Class2 not in ('060002', '060006')
-    				and i.Class3 in ('061038', '061039')
-    				) j 
-    				 on c.Goodcd = j.GoodCd
-    				 where j.Goodcd = """ + GoodCd + """
-                    group by j.Goodcd, c.workdate, j.workno, j.DeliveryDate, j.OrderQty, c.Cycletime, c.Processcd,c.starttime, c.Endtime, j.Class3, Spec
-
-                    order by c.workdate DESC
+                    select  TWRC.Goodcd, TWRC.Workno, TWRC.Cnc,TWRC.Seq, TWRC.Processcd, TWRC.Prodqty, TWRC.Errqty,  
+TWRC.Cycletime, max(TWRC.Workdate) as workdate, TWRC.Starttime, TWRC.Endtime
+from 
+(select Workno, Workdate, Acceptno, DeliveryDate , Goodcd, OrderQty
+from TWorkreport_Han_Eng
+where Goodcd = """ + GoodCd +""") a
+ inner join TWorkReport_CNC TWRC on  TWRC.Goodcd = a.Goodcd
+   group by TWRC.Goodcd, TWRC.Workno, TWRC.Cnc,TWRC.Seq, TWRC.Processcd, TWRC.Prodqty, TWRC.Errqty,
+TWRC.Cycletime, TWRC.Workdate, TWRC.Starttime, TWRC.Endtime  
+  order by  TWRC.workdate DESC --TWHE.Starttime
                     """
                    )
     row = cursor.fetchone()
-    while (row):
-        processcd = row[6].strip()
+
+    while row:
+        processcd = row[4].strip()
         if processcd == 'P1' and flag1 == 0:
             cycle_time.append(int(row[7]))
             flag1 = 1
@@ -228,6 +247,7 @@ def search_cycle_time(cursor, cycle_time, GoodCd, Gubun, deli_start, deli_end):
         elif processcd == 'P3' and flag3 == 0:
             cycle_time.append(int(row[7]))
             flag3 = 1
+
         if flag1 == 1 and flag2 == 1 and flag3 == 1:
             break
         row = cursor.fetchone()
@@ -451,3 +471,4 @@ def permutation(pool):
 
 def sort(pool):
     sorted(pool, key=lambda unit: unit.get_job().getDue())
+

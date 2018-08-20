@@ -10,7 +10,7 @@ def read_from_excel(input, machine = None):
         #n_cols = sheet.ncols
         n_rows = sheet.nrows
         prev_workno = 0
-        machines[i+1] =
+        machines[i+1]
         for j in range(1, n_rows):
             row = sheet.row_values(j)
             workno = row[0]

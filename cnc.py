@@ -72,6 +72,9 @@ class CNC:
     def getShape(self):
         return self.shape
 
+    def getNote(self):
+        return self.note
+
     def inProcess(self):
         j = self.jobQ[-1]
         for i in range(3):

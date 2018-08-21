@@ -449,13 +449,22 @@ def update(CNCs, unitTime, ready_pool, in_progress):
                     ready_pool.remove((c.get_jobQ())[-1])  # reaypool에서는 뺀다
 
 
-def splitPool(job_pool, normPool, hexPool):
+def splitPool(job_pool, norm, hex, round, square, valve_pre):
     for i, assignment in enumerate(job_pool):
         if assignment.getType() == 0:
-            normPool.append(assignment)
+            norm.append(assignment)
 
         elif assignment.getType() == 1:
-            hexPool.append(assignment)
+            hex.append(assignment)
+
+        elif assignment.getType() == 2:
+            round.append(assignment)
+
+        elif assignment.getType() == 3:
+            square.append(assignment)
+
+        elif assignment.getType() == 4:
+            valve_pre.append(assignment)
 
     return 0
 

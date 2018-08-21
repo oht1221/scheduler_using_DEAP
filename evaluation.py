@@ -34,19 +34,25 @@ def splitPool(indiv, normPool, hexPool, job_pool):
 
     return 0
 
-def interpret(machines, indiv, CNCs, job_pool):
+def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs):
     for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
         v.clear()
     unAssigned = []
-    normPool = list()
-    hexPool = list()
-    splitPool(indiv, normPool, hexPool, job_pool)
+    forging = list()
+    hex = list()
+    round = list()
+    square = list()
+    valvePre = list()
+    splitPool(indiv, forging, hex, round, square, valvePre, job_pool)
     # normPool.sort(key=lambda x: x.getDue())
     # hexPool.sort(key=lambda x: x.getDue())
     # normPool = permutations(normPool,len(normPool))
     # hexPool = permutations(hexPool,len(hexPool))
-    normCNCs = list(filter(lambda x: x.getShape() == 0, CNCs))
-    hexCNCs = list(filter(lambda x: x.getShape() == 1, CNCs))
+    CNCs_forging = list(filter(lambda x: x.getShape() == 0, CNCs))
+    CNCs_hex = list(filter(lambda x: x.getShape() == 1, CNCs))
+    CNCs_round = list(lambda  x : x.getShape() == 1 and not (x.getNote() == "코렛"), CNCs)
+    CNCs_square = list(lambda x : x.getShape() == 0, CNCs)
+    CNCs_valve_pre = list()
     # sortedNormPool = sorted(normPool, key = lambda j : j.getDue())
     # sortedHexPool = sorted(hexPool, key = lambda j: j.getDue())
 
@@ -93,9 +99,12 @@ def interpret2(machines, indiv, CNCs, job_pool):
     unAssigned = []
     '''for cnc in CNCs:
         machines[cnc.getNumber()] = list()'''
-    normPool = list()
-    hexPool = list()
-    splitPool(indiv, normPool, hexPool, job_pool)
+    forging = list()
+    hex = list()
+    round = list()
+    square = list()
+    valvePre = list()
+    splitPool(indiv, forging, hex, round, square, valvePre, job_pool)
     # normPool.sort(key=lambda x: x.getDue())
     # hexPool.sort(key=lambda x: x.getDue())
     # normPool = permutations(normPool,len(normPool))
@@ -105,7 +114,7 @@ def interpret2(machines, indiv, CNCs, job_pool):
     # sortedNormPool = sorted(normPool, key = lambda j : j.getDue())
     # sortedHexPool = sorted(hexPool, key = lambda j: j.getDue())
 
-    for i, j in enumerate(normPool):
+    for i, j in enumerate(forging):
 
         selected_CNCs = []
         for c in normCNCs:
@@ -123,7 +132,7 @@ def interpret2(machines, indiv, CNCs, job_pool):
         j.assignedTo(cnc)
 
 
-    for i, j in enumerate(hexPool):
+    for i, j in enumerate(hex):
 
         selected_CNCs = []
         for c in hexCNCs:

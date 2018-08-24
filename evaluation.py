@@ -52,11 +52,41 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs):
     CNCs_hex = list(filter(lambda x: x.getShape() == 1, CNCs))
     CNCs_round = list(lambda  x : x.getShape() == 1 and not (x.getNote() == "코렛"), CNCs)
     CNCs_square = list(lambda x : x.getShape() == 0, CNCs)
-    CNCs_valve_pre = list()
+    CNCs_valve_pre = list(lambda x : x.getNumber() in [1,2,3,32,33,34,37,38,44], CNCs)
     # sortedNormPool = sorted(normPool, key = lambda j : j.getDue())
     # sortedHexPool = sorted(hexPool, key = lambda j: j.getDue())
 
-    for i, j in enumerate(normPool):
+
+    for i, j in enumerate(job_pool):
+
+        selected_CNCs = []
+
+        if j.getType() == 0:
+            assign(j, CNCs_forging)
+
+        elif j.getType() == 1:
+            assign(j, CNCs_hex)
+
+        elif j.getType() == 2:
+            assign(j, CNCs_round)
+
+        elif j.getType() == 3:
+            assign(j, CNCs_square)
+
+        elif j.getType() == 4:
+            assign(j, CNCs_valve_pre)
+
+
+        for c in normCNCs:
+            if c.getGround() <= j.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
+                selected_CNCs.append(c)
+
+        cnc = selected_CNCs[i % len(normPool)]
+        (machines[cnc.getNumber()]).append(j)
+        j.assignedTo(cnc)
+
+    '''
+    for i, j in enumerate(job_pool):
 
         selected_CNCs = []
         for c in normCNCs:
@@ -83,6 +113,25 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs):
         cnc = selected_CNCs[minIndex]
         (machines[cnc.getNumber()]).append(j)
         j.assignedTo(cnc)
+
+    for i, j in enumerate(hexPool):
+
+        selected_CNCs = []
+        for c in hexCNCs:
+            if (c.getGround() <= j.getSize() <= c.getCeiling()):  # size 맞는 CNC는 모두 찾음
+                selected_CNCs.append(c)
+
+        timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
+        if len(timeLefts) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
+            unAssigned.append(j)
+            continue
+        minValue = min(timeLefts)
+        minIndex = timeLefts.index(minValue)
+        cnc = selected_CNCs[minIndex]
+        (machines[cnc.getNumber()]).append(j)
+        j.assignedTo(cnc)
+
+    '''
 
     interpreted = {}
     for k, v in machines.items():
@@ -213,3 +262,20 @@ def evaluate(individual, normalization, avgs, params, c = None):
     print(scaled)
     return scaled
 
+def assign(job, CNCs, machines, unAssigned):
+    selected_CNCs = []
+
+    for c in CNCs:
+        if c.getGround() <= job.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
+            selected_CNCs.append(c)
+
+    if len(selected_CNCs) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
+        unAssigned.append(job)
+
+    timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
+
+    minValue = min(timeLefts)
+    minIndex = timeLefts.index(minValue)
+    cnc = selected_CNCs[minIndex]
+    (machines[cnc.getNumber()]).append(job)
+    job.assignedTo(cnc)

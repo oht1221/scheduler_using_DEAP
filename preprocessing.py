@@ -18,7 +18,7 @@ def read_CNCs(input, CNCs):
 
     for i in range(2, 47):  # 1, 2, 6, 8, 10, 16, 22번 cnc
         row = worksheet.row_values(i)
-        number = float(row[1])
+        number = int(row[1])
         shape = None
         if str(row[2]) == "2JAW":  # 2JAW 면 shape이 0, 3JAW면 shape이 1
             shape = 0

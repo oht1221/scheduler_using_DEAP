@@ -1,7 +1,7 @@
 from job import *
 
 class CNC:
-    def __init__(self, number = ' ', ground = ' ', ceiling = ' ', shape = ' ', type = ' ', note = ' '):
+    def __init__(self, number = 0, ground = ' ', ceiling = ' ', shape = ' ', type = ' ', note = ' '):
         self.number = number
         self.ground = ground
         self.ceiling = ceiling

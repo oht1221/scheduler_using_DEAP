@@ -72,6 +72,7 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
                 assign(j, CNCs_LOK_size_forging, machines, unAssigned)
             elif j.getType() == 1:
                 assign(j, CNCs_LOK_size_hex, machines, unAssigned)
+
         elif j.getType() == 0:
             assign(j, CNCs_2jaw, machines, unAssigned)
 

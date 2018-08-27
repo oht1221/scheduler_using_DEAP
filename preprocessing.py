@@ -195,9 +195,9 @@ def make_job_pool(job_pool, start, end):
         '''
         Qty = row[5]
         Gubun = row[7]
-        if row[9] == 'Y':
+        if row[10] == 'Y':
             LOK = 1
-        elif row[9] == 'N':
+        elif row[10] == 'N':
             LOK = 0
 
         search_cycle_time(cursor2, cycle_time, GoodCd, Gubun, deli_start, deli_end)

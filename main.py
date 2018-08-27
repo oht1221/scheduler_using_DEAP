@@ -18,11 +18,15 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 500
+    NGEN = 50
     POP_SIZE =  MU = 30
     MUTPB = 0.25
     LAMBDA = 60
     CXPB = 0.75
+    VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
+    LOK_FORGING_CNCs = [10, 15]
+    LOK_HEX_CNCs = [8, 9, 11, 12, 13]
+
     start = str(input("delivery date from: "))
     end = str(input("delivery date until: "))
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
@@ -85,7 +89,7 @@ if __name__ == "__main__":
     mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
     '''
     #toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
-    toolbox.register("evaluate", pre_evaluate, standard, machines, CNCs, JOB_POOL)
+    toolbox.register("evaluate", pre_evaluate, standard, machines, CNCs, JOB_POOL, VALVE_PRE_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs)
     '''
     for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
@@ -120,7 +124,7 @@ if __name__ == "__main__":
                 dr.print_job_schedule(hof[i], start, end, standard_in_datetime, "optimized", i + 1)
             break
         except Exception as ex:
-            print("an erroe occured! : ", ex)
+            print("an error occured! : ", ex)
             continue
 
 

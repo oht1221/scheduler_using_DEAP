@@ -195,6 +195,11 @@ def make_job_pool(job_pool, start, end):
         '''
         Qty = row[5]
         Gubun = row[7]
+        if row[9] == 'Y':
+            LOK = 1
+        elif row[9] == 'N':
+            LOK = 0
+
         search_cycle_time(cursor2, cycle_time, GoodCd, Gubun, deli_start, deli_end)
 
         if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
@@ -202,7 +207,7 @@ def make_job_pool(job_pool, start, end):
             continue
 
         newJob = Job(workno=workno, goodNo=GoodNo, goodCd = GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
-                            due=due_date_seconds, rawNo = rawMaterialNo, rawCd = rawMaterialCd, size=rawMaterialSize)
+                            due=due_date_seconds, rawNo = rawMaterialNo, rawCd = rawMaterialCd, size=rawMaterialSize, LOK = LOK)
 
         job_pool.append(newJob)
         row = cursor1.fetchone()

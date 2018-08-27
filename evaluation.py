@@ -40,7 +40,7 @@ def refer_individual(indiv, job_pool):
 
     return indiv_ref
 
-def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs):
+def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs):
     for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
         v.clear()
     unAssigned = []
@@ -53,22 +53,30 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs):
     # hexPool = permutations(hexPool,len(hexPool))
 
 
-    CNCs_forging = list(filter(lambda x: x.getShape() == 0, CNCs))
-    CNCs_hex = list(filter(lambda x: x.getShape() == 1, CNCs))
+    CNCs_2jaw = list(filter(lambda x: x.getShape() == 0, CNCs))
+    CNCs_3jaw = list(filter(lambda x: x.getShape() == 1, CNCs))
     CNCs_round = list(filter(lambda  x : (x.getShape() == 1 and not (x.getNote() == "코렛")), CNCs))
     CNCs_square = list(filter(lambda x : x.getShape() == 0, CNCs))
     CNCs_valve_pre = list(filter(lambda x : x.getNumber() in valve_pre_CNCs, CNCs))
+    CNCs_LOK_size_forging = list(filter(lambda x : x.getNumber() in LOK_forging_CNCs, CNCs))
+    CNCs_LOK_size_hex = list(filter(lambda x : x.getNumber() in LOK_hex_CNCs, CNCs))
+
     # sortedNormPool = sorted(normPool, key = lambda j : j.getDue())
     # sortedHexPool = sorted(hexPool, key = lambda j: j.getDue())
 
 
     for i, j in enumerate(indiv_ref):
 
-        if j.getType() == 0:
-            assign(j, CNCs_forging, machines, unAssigned)
+        if j.LOK == 1:
+            if j.getType() == 0:
+                assign(j, CNCs_LOK_size_forging, machines, unAssigned)
+            elif j.getType() == 1:
+                assign(j, CNCs_LOK_size_hex, machines, unAssigned)
+        elif j.getType() == 0:
+            assign(j, CNCs_2jaw, machines, unAssigned)
 
         elif j.getType() == 1:
-            assign(j, CNCs_hex, machines, unAssigned)
+            assign(j, CNCs_3jaw, machines, unAssigned)
 
         elif j.getType() == 2:
             assign(j, CNCs_round, machines, unAssigned)
@@ -204,8 +212,8 @@ def interpret2(machines, indiv, CNCs, job_pool):
 
     return interpreted
 
-def pre_evaluate(standard, machines, CNCs, job_pool, individual):
-    ichr = interpret(machines, individual, CNCs, job_pool,)
+def pre_evaluate(standard, machines, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, individual):
+    ichr = interpret(machines, individual, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs)
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
     LAST_JOB_EXECUTION = 0
@@ -262,9 +270,13 @@ def evaluate(individual, normalization, avgs, params, c = None):
 def assign(job, CNCs, machines, unAssigned):
     selected_CNCs = []
 
-    for c in CNCs:
-        if c.getGround() <= job.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
-            selected_CNCs.append(c)
+    if job.getType() in [0,1,2]:
+        for c in CNCs:
+            if c.getGround() <= job.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
+                selected_CNCs.append(c)
+    else:
+        selected_CNCs = CNCs
+
 
     if len(selected_CNCs) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
         unAssigned.append(job)

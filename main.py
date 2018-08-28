@@ -18,7 +18,7 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 200
+    NGEN = 300
     POP_SIZE =  MU = 30
     MUTPB = 0.25
     LAMBDA = 60

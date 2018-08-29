@@ -39,21 +39,5 @@ for job in JOB_POOL:
     print("")
     print(job.getCycletime())
     print(job.getGoodCd())
+    print(job.getSize())
     print("")
-    
-
-scores = evaluation.pre_evaluate(standard, machines, CNCs, JOB_POOL, indiv1, valve_pre_CNCs)
-
-print(scores)
-
-
-'''
-for cncN, L in interpreted.items():
-    print(cncN)
-    for u in L:
-        job = u.get_job()
-        print(job.getWorkno())
-        print(job.getType())
-        print("")
-
-'''

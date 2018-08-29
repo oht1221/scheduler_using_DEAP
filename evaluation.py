@@ -270,12 +270,14 @@ def evaluate(individual, normalization, avgs, params, c = None):
 
 def assign(job, CNCs, machines, unAssigned):
     selected_CNCs = []
-
-    if job.getType() in [0,1,2]:
+    type = job.getType()
+    if type in [0,1,2]:
         for c in CNCs:
             if c.getGround() <= job.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
                 selected_CNCs.append(c)
-    else:
+    elif type == 3:
+        selected_CNCs = CNCs
+    elif type == 4:
         selected_CNCs = CNCs
 
 

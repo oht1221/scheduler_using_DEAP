@@ -33,6 +33,7 @@ def splitPool(indiv, normPool, hexPool, job_pool):
             hexPool.append(assignment)
 
     return 0
+
 def refer_individual(indiv, job_pool):
     indiv_ref = []
     for i in indiv:
@@ -46,13 +47,6 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     unAssigned = []
     indiv_ref = refer_individual(indiv, job_pool)
 
-    #splitPool(indiv, forging, hex, round, square, valvePre, job_pool)
-    # normPool.sort(key=lambda x: x.getDue())
-    # hexPool.sort(key=lambda x: x.getDue())
-    # normPool = permutations(normPool,len(normPool))
-    # hexPool = permutations(hexPool,len(hexPool))
-
-
     CNCs_2jaw = list(filter(lambda x: x.getShape() == 0, CNCs))
     CNCs_3jaw = list(filter(lambda x: x.getShape() == 1, CNCs))
     CNCs_round = list(filter(lambda  x : (x.getShape() == 1 and not (x.getNote() == "코렛")), CNCs))
@@ -60,9 +54,6 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     CNCs_valve_pre = list(filter(lambda x : x.getNumber() in valve_pre_CNCs, CNCs))
     CNCs_LOK_size_forging = list(filter(lambda x : x.getNumber() in LOK_forging_CNCs, CNCs))
     CNCs_LOK_size_hex = list(filter(lambda x : x.getNumber() in LOK_hex_CNCs, CNCs))
-
-    # sortedNormPool = sorted(normPool, key = lambda j : j.getDue())
-    # sortedHexPool = sorted(hexPool, key = lambda j: j.getDue())
 
 
     for i, j in enumerate(indiv_ref):
@@ -91,53 +82,6 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
         else:
             print("job type error!")
 
-    '''
-    for i, j in enumerate(job_pool):
-
-        selected_CNCs = []
-        for c in normCNCs:
-            if c.getGround() <= j.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
-                selected_CNCs.append(c)
-
-        cnc = selected_CNCs[i % len(normPool)]
-        (machines[cnc.getNumber()]).append(j)
-        j.assignedTo(cnc)
-
-    for i, j in enumerate(hexPool):
-
-        selected_CNCs = []
-        for c in hexCNCs:
-            if (c.getGround() <= j.getSize() <= c.getCeiling()):  # size 맞는 CNC는 모두 찾음
-                selected_CNCs.append(c)
-
-        timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
-        if len(timeLefts) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
-            unAssigned.append(j)
-            continue
-        minValue = min(timeLefts)
-        minIndex = timeLefts.index(minValue)
-        cnc = selected_CNCs[minIndex]
-        (machines[cnc.getNumber()]).append(j)
-        j.assignedTo(cnc)
-
-    for i, j in enumerate(hexPool):
-
-        selected_CNCs = []
-        for c in hexCNCs:
-            if (c.getGround() <= j.getSize() <= c.getCeiling()):  # size 맞는 CNC는 모두 찾음
-                selected_CNCs.append(c)
-
-        timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
-        if len(timeLefts) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
-            unAssigned.append(j)
-            continue
-        minValue = min(timeLefts)
-        minIndex = timeLefts.index(minValue)
-        cnc = selected_CNCs[minIndex]
-        (machines[cnc.getNumber()]).append(j)
-        j.assignedTo(cnc)
-
-    '''
 
     interpreted = {}
     for k, v in machines.items():

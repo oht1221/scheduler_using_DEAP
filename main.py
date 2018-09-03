@@ -12,6 +12,9 @@ from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize
 from collections import deque
 import displays_results as dr
 
+
+start_point = time.time()
+
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
@@ -114,7 +117,9 @@ if __name__ == "__main__":
         print(ind.fitness.values)
     print("------------------------------------------Hall of fame------------------------------------------------")
 
-
+    m, s = divmod((time.time() - start_point), 60)
+    h, m = divmod(m, 60)
+    print("%s hours %s minutes and %s seconds" %(h, m, s))
     how_many_from_the_top = int(input("How many schedules do you want to print out? : "))
 
 

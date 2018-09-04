@@ -85,6 +85,7 @@ class Component:
         self.timeLeft = cycleTime * quantity
         self.endDateTime = None
         self.startDateTime = None
+        self.cnc = None
 
     def spendTime(self, unitTime):
         self.timeLeft = self.timeLeft - unitTime
@@ -131,6 +132,10 @@ class Component:
         self.quantity -= 1
 
         return self.quantity
+
+    def assignedTo(self, cnc):
+        self.cnc = cnc
+
 """
 class NormalCompoenet(Component):
     def __init__(self, cycleTime, job, quantity):

@@ -223,19 +223,25 @@ def assign(job, CNCs, machines, unAssigned):
         selected_CNCs = CNCs
     elif type == 4:
         selected_CNCs = CNCs
-
+    elif type == 5:
+        selected_CNCs = CNCs
 
     if len(selected_CNCs) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
         unAssigned.append(job)
 
         return -1
 
-    timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
+    components = job.getComponent()
 
+    timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
     minValue = min(timeLefts)
     minIndex = timeLefts.index(minValue)
     cnc = selected_CNCs[minIndex]
-    (machines[cnc.getNumber()]).append(job)
-    job.assignedTo(cnc)
+    #(machines[cnc.getNumber()]).append(job)
+    #job.assignedTo(cnc)
+
+    for comp in components:
+        (machines[cnc.getNumber()]).append(comp)
+        comp.assignedTo(cnc)
 
     return 0

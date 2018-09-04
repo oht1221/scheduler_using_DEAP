@@ -21,7 +21,7 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 300
+    NGEN = 1000
     POP_SIZE =  MU = 30
     MUTPB = 0.25
     LAMBDA = 60
@@ -31,7 +31,8 @@ if __name__ == "__main__":
     LOK_HEX_CNCs = [8, 9, 11, 12, 13]
 
     start = str(input("delivery date from: "))
-    end = str(input("delivery date until: "))
+    #end = str(input("delivery date until: "))
+    end = "29991212"
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
     read_CNCs('./장비정보.xlsx', CNCs)
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
-    creator.create("FitnessMul", base.Fitness, weights=(-1.2, -1.0, -1.0))
+    creator.create("FitnessMul", base.Fitness, weights=(-3.0, -1.0, -1.0))
     creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int, assignment = dict)
 
     toolbox = base.Toolbox()

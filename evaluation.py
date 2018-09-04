@@ -197,8 +197,8 @@ def pre_evaluate(standard, machines, CNCs, job_pool, valve_pre_CNCs, LOK_forging
             LAST_JOB_EXECUTION = time_left_of_machine
 
     output['jobs'] = int(TOTAL_DELAYED_JOBS_COUNT)
-    output['time'] = int(TOTAL_DELAYED_TIME)
-    output['last'] = int(LAST_JOB_EXECUTION)
+    output['time'] = int((TOTAL_DELAYED_TIME) / (60 * 30))
+    output['last'] = int((LAST_JOB_EXECUTION) / (60 * 30))
     individual.fitness.values = [output['jobs'], output['time'], output['last']]
     individual.assignment = ichr
     print(individual.fitness.values)

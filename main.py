@@ -21,7 +21,7 @@ if __name__ == "__main__":
     READY_POOL = deque()
     IN_PROGRESS = deque()
 
-    NGEN = 1000
+    NGEN =
     POP_SIZE =  MU = 30
     MUTPB = 0.25
     LAMBDA = 60
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     #toolbox.register("mate", tools.cxPartialyMatched)
     toolbox.register("mate", tools.cxOrdered)
-    toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
+    toolbox.register("mutate", genetic_operators.inversion_mutation)
     toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
     toolbox.register("select", tools.selNSGA2)
     #toolbox.register("select", tools.selSPEA2)

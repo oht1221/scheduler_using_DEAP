@@ -38,7 +38,6 @@ def read_CNCs(input, CNCs):
         except ValueError:
             ceiling = 1000.0
 
-        print(number)
         cnc = CNC(number, ground, ceiling, shape, type, note)
         CNCs.append(cnc)
 

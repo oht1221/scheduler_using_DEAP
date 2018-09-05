@@ -16,7 +16,7 @@ def inversion_mutation(individual):
         individual[(start + i) % total] = individual[(end - i) % total]
         individual[(end - i) % total] = temp
         i += 1
-    return individual, interval, start, end
+    return individual,
 
 def inversion_with_displacement_mutation(individual):
     dummy, interval, start, end = inversion_mutation(individual)

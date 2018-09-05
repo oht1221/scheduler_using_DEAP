@@ -149,21 +149,34 @@ class ReplacementComponent(Component):
 """
 
 class unit:
-    def __init__(self, job, times = None):
-        self.job = job
-        self.times = times
+    def __init__(self, component, start_time = None, end_time = None):
+        self.component = component
+        self.start_time = start_time
+        self.end_time = end_time
         self.delayed = False
+
     def isDelayed(self):
         return self.delayed
-    def get_times(self):
-        return self.times
-    def get_job(self):
-        return self.job
+
+    def get_start_time(self):
+        return self.start_time
+
+    def get_end_time(self):
+        return self.end_time
+
+    def get_component(self):
+        return self.component
+
     def set_delayed(self):
         self.delayed = True
-    def set_times(self, times):
-        self.times = times
-        return self.times
+
+    def set_start_time(self, start_time):
+        self.start_time = start_time
+        return self.start_time
+
+    def set_end_time(self, end_time):
+        self.end_time = end_time
+        return self.end_time
 
 class score_ichr:
     def __init__(self, delayed_jobs = None, delayed_time = None, last_job = None,):
@@ -173,17 +186,21 @@ class score_ichr:
 
     def get_delayed_jobs(self):
         return self.delayed_jobs
+
     def get_delayed_time(self):
         return self.delayed_time
+
     def get_last_job(self):
         return self.last_job
 
     def set_delayed_jobs(self, delayed_jobs):
         self.delayed_jobs = delayed_jobs
         return self.delayed_jobs
+
     def set_delayed_time(self, delayed_time):
         self.delayed_time = delayed_time
         return self.delayed_time
+
     def set_last_job(self, last_job):
         self.last_job = last_job
         return self.last_job

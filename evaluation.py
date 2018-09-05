@@ -41,7 +41,7 @@ def refer_individual(indiv, job_pool):
 
     return indiv_ref
 
-def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs):
+def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
     for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
         v.clear()
     unAssigned = []
@@ -89,6 +89,25 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
         for j in v:
             new = unit(j)
             interpreted[k].append(new)
+
+    for m in interpreted.values():
+        component_start_time = standard
+        component_end_time = component_start_time
+        time_left_of_machine = 0
+
+        for u in m:
+            comp = u.get_component()
+            time_taken = comp.getTime()
+            component_end_time = component_start_time + time_taken
+
+            startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
+            endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
+
+            component_start_time = component_end_time
+            time_left_of_machine += time_taken
+
+            u.set_start_time(startTime)
+            u.set_end_time(endTime)
 
     return interpreted
 
@@ -151,14 +170,14 @@ def interpret2(machines, indiv, CNCs, job_pool):
     interpreted = {}
     for k, v in machines.items():
         interpreted[k] = []
-        for j in v:
-            new = unit(j)
+        for comp in v:
+            new = unit(comp)
             interpreted[k].append(new)
 
     return interpreted
 
 def pre_evaluate(standard, machines, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, individual):
-    ichr = interpret(machines, individual, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs)
+    ichr = interpret(machines, individual, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
     LAST_JOB_EXECUTION = 0
@@ -172,8 +191,19 @@ def pre_evaluate(standard, machines, CNCs, job_pool, valve_pre_CNCs, LOK_forging
         for u in m:
             # each_job_execution_time += j.getTime()
             times = []
-            j = u.get_job()
-            for comp in j.getComponent():
+            comp = u.get_component()
+            time_taken = comp.getTime()
+            component_end_time = component_start_time + time_taken
+
+            startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
+            endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
+
+            component_start_time = component_end_time
+            time_left_of_machine += time_taken
+
+            u.set_start_time(startTime)
+            u.set_end_time(endTime)
+            '''for comp in j.getComponent():
                 time = []
                 time_taken = comp.getTime()
                 component_end_time = component_start_time + time_taken
@@ -184,8 +214,9 @@ def pre_evaluate(standard, machines, CNCs, job_pool, valve_pre_CNCs, LOK_forging
                 times.append(time)
                 component_start_time = component_end_time
                 time_left_of_machine += time_taken
-
+            
             u.set_times(times)
+            '''
             diff = j.getDue() - (component_end_time + 60*60*24*5) #5일간 다른 공정
             # time_left_of_machine += j.getTime()
             if diff < 0:
@@ -231,17 +262,17 @@ def assign(job, CNCs, machines, unAssigned):
 
         return -1
 
-    #components = job.getComponent()
+    components = job.getComponent()
 
     timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
     minValue = min(timeLefts)
     minIndex = timeLefts.index(minValue)
     cnc = selected_CNCs[minIndex]
-    (machines[cnc.getNumber()]).append(job)
-    job.assignedTo(cnc)
+    #(machines[cnc.getNumber()]).append(job)
+    #job.assignedTo(cnc)
 
-    #for comp in components:
-    #    (machines[cnc.getNumber()]).append(comp)
-    #    comp.assignedTo(cnc)
+    for comp in components:
+        (machines[cnc.getNumber()]).append(comp)
+        comp.assignedTo(cnc)
 
     return 0

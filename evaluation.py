@@ -182,47 +182,13 @@ def pre_evaluate(standard, machines, CNCs, job_pool, valve_pre_CNCs, LOK_forging
     TOTAL_DELAYED_TIME = 0
     LAST_JOB_EXECUTION = 0
     output = {}
-    for m in ichr.values():
-        component_start_time = standard
-        component_end_time = component_start_time
-        # time_left_of_machine = sum([j.getTime() for j in m])
-        time_left_of_machine = 0
 
-        for u in m:
-            # each_job_execution_time += j.getTime()
-            times = []
-            comp = u.get_component()
-            time_taken = comp.getTime()
-            component_end_time = component_start_time + time_taken
-
-            startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
-            endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
-
-            component_start_time = component_end_time
-            time_left_of_machine += time_taken
-
-            u.set_start_time(startTime)
-            u.set_end_time(endTime)
-            '''for comp in j.getComponent():
-                time = []
-                time_taken = comp.getTime()
-                component_end_time = component_start_time + time_taken
-                startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
-                endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
-                time.append(startTime)
-                time.append(endTime)
-                times.append(time)
-                component_start_time = component_end_time
-                time_left_of_machine += time_taken
-            
-            u.set_times(times)
-            '''
-            diff = j.getDue() - (component_end_time + 60*60*24*5) #5일간 다른 공정
-            # time_left_of_machine += j.getTime()
-            if diff < 0:
-                TOTAL_DELAYED_JOBS_COUNT += 1
-                TOTAL_DELAYED_TIME += (-1) * diff
-                u.set_delayed()
+    diff = j.getDue() - (component_end_time + 60*60*24*5) #5일간 다른 공정
+    # time_left_of_machine += j.getTime()
+    if diff < 0:
+        TOTAL_DELAYED_JOBS_COUNT += 1
+        TOTAL_DELAYED_TIME += (-1) * diff
+        u.set_delayed()
 
         if time_left_of_machine > LAST_JOB_EXECUTION:
             LAST_JOB_EXECUTION = time_left_of_machine

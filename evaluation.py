@@ -231,17 +231,17 @@ def assign(job, CNCs, machines, unAssigned):
 
         return -1
 
-    components = job.getComponent()
+    #components = job.getComponent()
 
     timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
     minValue = min(timeLefts)
     minIndex = timeLefts.index(minValue)
     cnc = selected_CNCs[minIndex]
-    #(machines[cnc.getNumber()]).append(job)
-    #job.assignedTo(cnc)
+    (machines[cnc.getNumber()]).append(job)
+    job.assignedTo(cnc)
 
-    for comp in components:
-        (machines[cnc.getNumber()]).append(comp)
-        comp.assignedTo(cnc)
+    #for comp in components:
+    #    (machines[cnc.getNumber()]).append(comp)
+    #    comp.assignedTo(cnc)
 
     return 0

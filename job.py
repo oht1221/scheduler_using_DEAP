@@ -149,8 +149,7 @@ class ReplacementComponent(Component):
 """
 
 class unit:
-    def __init__(self, component, start_time = None, end_time = None):
-        self.component = component
+    def __init__(self, start_time = None, end_time = None):
         self.start_time = start_time
         self.end_time = end_time
         self.delayed = False
@@ -177,6 +176,22 @@ class unit:
     def set_end_time(self, end_time):
         self.end_time = end_time
         return self.end_time
+
+class component_unit(unit):
+    def __init__(self, component, start_time = None, end_time = None):
+        super(component_unit, self).__init__(start_time, end_time)
+        self.component = component
+
+    def get_component(self):
+        return self.component
+
+class setting_time_unit(unit):
+    def __init__(self, start_time=None, end_time=None):
+        super(setting_time_unit, self).__init__(start_time, end_time)
+        self.setting = True
+
+    def isSetting(self):
+        return self.setting
 
 class score_ichr:
     def __init__(self, delayed_jobs = None, delayed_time = None, last_job = None,):

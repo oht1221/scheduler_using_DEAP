@@ -1,7 +1,7 @@
 import datetime
 import numpy as np
 import copy
-from job import unit
+from job import unit, component_unit, setting_time_unit
 
 
 def invert_linear_normalize(fitnesses, avgs, mins, c= None):
@@ -86,9 +86,32 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     interpreted = {}
     for k, v in machines.items():
         interpreted[k] = []
-        for j in v:
-            new = unit(j)
+        component_start_time = standard
+        component_end_time = component_start_time
+        ime_left_of_machine = 0
+
+        for comp in v:
+            time_taken = comp.getTime()
+            component_end_time = component_start_time + time_taken
+
+            startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
+            endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
+            new = component_unit(comp, startTime, endTime)
+
+            component_start_time = component_end_time
+            time_left_of_machine += time_taken
+
+            component_end_time = component_start_time + 60 * 30
+            startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
+            endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
+
+            setting_time = setting_time_unit(startTime, endTime)
+
+            component_start_time = component_end_time
+            time_left_of_machine += 60 * 30
+
             interpreted[k].append(new)
+            interpreted[k].append(setting_time)
 
     for m in interpreted.values():
         component_start_time = standard
@@ -177,7 +200,8 @@ def interpret2(machines, indiv, CNCs, job_pool):
     return interpreted
 
 def pre_evaluate(standard, machines, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, individual):
-    ichr = interpret(machines, individual, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
+    interpreted = interpret(machines, individual, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
+
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
     LAST_JOB_EXECUTION = 0

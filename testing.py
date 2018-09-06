@@ -38,7 +38,7 @@ standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
     (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
 standard = int(standard)
 
-ichr = evaluation.interpret(machines, indiv1, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs)
+ichr = evaluation.interpret(machines, indiv1, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
 
 for m in ichr.values():
     component_start_time = standard

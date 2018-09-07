@@ -40,38 +40,23 @@ standard = int(standard)
 
 ichr = evaluation.interpret(machines, indiv1, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
 
-for m in ichr.values():
-    component_start_time = standard
-    component_end_time = component_start_time
-    # time_left_of_machine = sum([j.getTime() for j in m])
-    time_left_of_machine = 0
-
-    for u in m:
-        # each_job_execution_time += j.getTime()
-        times = []
-        comp = u.get_component()
-        time_taken = comp.getTime()
-        component_end_time = component_start_time + time_taken
-
-        startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
-        endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
-
-        component_start_time = component_end_time
-        time_left_of_machine += time_taken
-
-        u.set_start_time(startTime)
-        u.set_end_time(endTime)
 
 for k, m in ichr.items():
     print(k)
     print("")
     for u in m:
-        comp = u.get_component()
-        job = comp.getJob()
+        if u.isComp():
+            comp = u.get_component()
+            job = comp.getJob()
 
-        print(job.getGoodNo())
-        print(job.getType())
-        print(job.getLOK())
-        print(u.get_start_time())
-        print(u.get_end_time())
-        print("")
+            print(job.getGoodNo())
+            print(job.getType())
+            print(job.getLOK())
+            print(u.get_start_time())
+            print(u.get_end_time())
+            print("")
+        else:
+            print("setting time")
+            print(u.get_start_time())
+            print(u.get_end_time())
+            print("")

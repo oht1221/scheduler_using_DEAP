@@ -157,15 +157,11 @@ class unit:
     def isDelayed(self):
         return self.delayed
 
-    def
     def get_start_time(self):
         return self.start_time
 
     def get_end_time(self):
         return self.end_time
-
-    def get_component(self):
-        return self.component
 
     def set_delayed(self):
         self.delayed = True
@@ -186,10 +182,16 @@ class component_unit(unit):
     def get_component(self):
         return self.component
 
+    def isComp(self):
+            return True
+
 class setting_time_unit(unit):
     def __init__(self, start_time=None, end_time=None):
         super(setting_time_unit, self).__init__(start_time, end_time)
         self.setting = True
+
+    def isComp(self):
+            return False
 
     def isSetting(self):
         return self.setting

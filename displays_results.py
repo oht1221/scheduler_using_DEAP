@@ -41,29 +41,34 @@ def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
         #worksheet.write(row, 5, str(indexOfMin))
         row += 1
         for i, unit in enumerate(value):
-            times = unit.get_times()
-            job = unit.get_job()
-            due = unit.job.getDue()
-            #type = unit.job.getType()
-            quantity = unit.job.getQuantity()
-            for j, time in enumerate(times):
-                job_starts_from = time[0]
-                job_ends_at = time[1]
-                #start = comp.getStartDateTime()
-                #end = comp.getEndDateTime()
-                if unit.isDelayed():
-                    worksheet.write(row, 0, job.getWorkno(), color)
-                else:
-                    worksheet.write(row, 0, job.getWorkno())
-                worksheet.write(row, 1, "P%d" % (j + 1))
-                worksheet.write(row, 2, job.getGoodNo())
-                worksheet.write(row, 3, job.getType())
-                worksheet.write(row, 4, job.getLOK())
-                worksheet.write(row, 5, job_starts_from)
-                worksheet.write(row, 6, job_ends_at)
-                worksheet.write(row, 7, datetime.datetime.fromtimestamp(due).strftime('%Y-%m-%d %H:%M:%S'))
-                worksheet.write(row, 8, quantity)
-                row += 1
-    output.save("./schedules/schedule_%s_%s_%s_%s_%d.xls"%(schedule_type, start, end, standard, rank))  # 엑셀 파일 저장 및 생성
+            print_out_unit(unit, row, worksheet)
 
     return
+
+def print_out_unit(unit, row, worksheet):
+    time = unit.get_time()
+    job = unit.get_job()
+    due = unit.job.getDue()
+    # type = unit.job.getType()
+    quantity = unit.job.getQuantity()
+    for j, time in enumerate(times):
+        job_starts_from = time[0]
+        job_ends_at = time[1]
+        # start = comp.getStartDateTime()
+        # end = comp.getEndDateTime()
+        if unit.isDelayed():
+            worksheet.write(row, 0, job.getWorkno(), color)
+        else:
+            worksheet.write(row, 0, job.getWorkno())
+        worksheet.write(row, 1, "P%d" % (j + 1))
+        worksheet.write(row, 2, job.getGoodNo())
+        worksheet.write(row, 3, job.getType())
+        worksheet.write(row, 4, job.getLOK())
+        worksheet.write(row, 5, job_starts_from)
+        worksheet.write(row, 6, job_ends_at)
+        worksheet.write(row, 7, datetime.datetime.fromtimestamp(due).strftime('%Y-%m-%d %H:%M:%S'))
+        worksheet.write(row, 8, quantity)
+        row += 1
+
+
+output.save("./schedules/schedule_%s_%s_%s_%s_%d.xls" % (schedule_type, start, end, standard, rank))  # 엑셀 파일 저장 및 생성

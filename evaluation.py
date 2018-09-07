@@ -88,7 +88,7 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
         interpreted[k] = []
         component_start_time = standard
         component_end_time = component_start_time
-        ime_left_of_machine = 0
+        time_left_of_machine = 0
 
         for comp in v:
             time_taken = comp.getTime()
@@ -101,18 +101,25 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
             component_start_time = component_end_time
             time_left_of_machine += time_taken
 
-            component_end_time = component_start_time + 60 * 30
+            component_end_time = component_start_time + 60 * 45
             startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
             endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
 
             setting_time = setting_time_unit(startTime, endTime)
 
             component_start_time = component_end_time
-            time_left_of_machine += 60 * 30
+            time_left_of_machine += 60 * 45
 
             interpreted[k].append(new)
             interpreted[k].append(setting_time)
 
+
+        try:
+            interpreted[k].pop()
+        except Exception as ex:
+            continue
+
+    '''
     for m in interpreted.values():
         component_start_time = standard
         component_end_time = component_start_time
@@ -131,7 +138,7 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
 
             u.set_start_time(startTime)
             u.set_end_time(endTime)
-
+    '''
     return interpreted
 
 def interpret2(machines, indiv, CNCs, job_pool):

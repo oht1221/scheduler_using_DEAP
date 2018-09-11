@@ -5,7 +5,8 @@ import random
 import numpy as np
 
 class Job:
-    def __init__(self, workno, goodNo, goodCd, quantity, time = None ,type = None, size = None, rawNo = None, rawCd = None, due = 0, LOK = None):
+    def __init__(self, workno, goodNo, goodCd, quantity, time = None ,type = None,
+                 size = None, rawNo = None, rawCd = None, due = 0, LOKFITTING = None, LOKFITTINGSIZE = None):
         self.workno = workno
         self.goodNo = goodNo
         self.goodCd = goodCd
@@ -19,11 +20,9 @@ class Job:
         #self.series = []
         self.series  = [Component(time[i], self, quantity) for i in range(len(time))]
         self.due  = due
-        self.cnc = None
         self.msg = None
-        self.startDate = None
-        self.endDate = None
-        self.LOK = LOK
+        self.lok_fitting = LOKFITTING
+        self.lok_fitting_size = LOKFITTINGSIZE
 
     def ifAllDone(self):
         return np.all([(self.getSeries())[i].ifDone() for i in range(len(self.getSeries()))])
@@ -59,8 +58,11 @@ class Job:
     def getDue(self):
         return self.due
 
-    def getLOK(self):
-        return self.LOK
+    def getLokFitting(self):
+        return self.lok_fitting
+
+    def getLokFittingSize(self):
+        return self.lok_fitting_size
 
     def getQuantity(self):
         return self.quantity

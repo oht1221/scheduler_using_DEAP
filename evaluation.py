@@ -58,7 +58,7 @@ def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
 
     for i, j in enumerate(indiv_ref):
 
-        if j.LOK == 1:
+        if j.lok_fitting_size == 1:
             if j.getType() == 0:
                 assign(j, CNCs_LOK_size_forging, machines, unAssigned)
             elif j.getType() == 1:
@@ -240,10 +240,6 @@ def evaluate(individual, normalization, avgs, params, c = None):
     print(scaled)
     return scaled
 
-def isLate(unit):
-        if unit.isComp():
-            comp = unit.get_component()
-            comp.
 
 def assign(job, CNCs, machines, unAssigned):
     selected_CNCs = []
@@ -270,11 +266,22 @@ def assign(job, CNCs, machines, unAssigned):
     minValue = min(timeLefts)
     minIndex = timeLefts.index(minValue)
     cnc = selected_CNCs[minIndex]
-    #(machines[cnc.getNumber()]).append(job)
-    #job.assignedTo(cnc)
+    cnc_number = cnc.getNumber()
 
-    for comp in components:
-        (machines[cnc.getNumber()]).append(comp)
-        comp.assignedTo(cnc)
+    if cnc_number in [39, 40] and job.getLokFitting():
+        (machines[cnc_number]).append(components[0])
+        components[0].assignedTo(cnc)
+        cnc_next = selected_CNCs[minIndex+1]
+        try:
+            (machines[cnc_number + 2]).append(components[1])
+            components[1].assignedTo(cnc_next)
+
+        except Exception as ex:
+            pass
+
+    else:
+        for comp in components:
+            (machines[cnc.getNumber()]).append(comp)
+            comp.assignedTo(cnc)
 
     return 0

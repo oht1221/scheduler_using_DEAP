@@ -194,10 +194,16 @@ def make_job_pool(job_pool, start, end):
         '''
         Qty = row[5]
         Gubun = row[7]
+
+        if row[9] == 'Y':
+            LOKFITTING = 1
+        elif row[9] == 'N':
+            LOKFITTING = 0
+
         if row[10] == 'Y':
-            LOK = 1
+            LOKFITTINGSIZE = 1
         elif row[10] == 'N':
-            LOK = 0
+            LOKFITTINGSIZE = 0
 
         search_cycle_time(cursor2, cycle_time, GoodCd, Gubun, deli_start, deli_end)
 
@@ -206,7 +212,8 @@ def make_job_pool(job_pool, start, end):
             continue
 
         newJob = Job(workno=workno, goodNo=GoodNo, goodCd = GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
-                            due=due_date_seconds, rawNo = rawMaterialNo, rawCd = rawMaterialCd, size=rawMaterialSize, LOK = LOK)
+                            due=due_date_seconds, rawNo = rawMaterialNo, rawCd = rawMaterialCd,
+                     size=rawMaterialSize, LOKFITTING = LOKFITTING, LOKFITTINGSIZE = LOKFITTINGSIZE)
 
         job_pool.append(newJob)
         row = cursor1.fetchone()

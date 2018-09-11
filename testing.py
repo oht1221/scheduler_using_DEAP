@@ -51,12 +51,12 @@ for k, m in ichr.items():
 
             print(job.getGoodNo())
             print(job.getType())
-            print(job.getLOK())
+            print(job.getLokFitting())
+            print(job.getLokFittingSize())
             print(u.get_start_time())
             print(u.get_end_time())
             print("")
         else:
-            print("setting time")
             print(u.get_start_time())
             print(u.get_end_time())
             print("")

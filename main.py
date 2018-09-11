@@ -8,7 +8,7 @@ from preprocessing import read_CNCs
 from deap import tools, benchmarks, base, creator, algorithms
 import time, array, random, copy, math
 import matplotlib.pyplot as plt
-from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate
+from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate, machine
 from collections import deque
 import displays_results as dr
 
@@ -36,9 +36,9 @@ if __name__ == "__main__":
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
     read_CNCs('./장비정보.xlsx', CNCs)
 
-    machines = {}
+    '''machines = {}
     for cnc in CNCs:
-        machines[float(cnc.getNumber())] = list()
+        machines[float(cnc.getNumber())] = machine'''
 
     standard = input("schedule starts on : ")
     standard_in_datetime = standard

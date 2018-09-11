@@ -364,7 +364,7 @@ def schedule(CNCs, job_pool, machines):
     msg = [total_delayed_time, total_delayed_jobs_count, last_job_execution, machines]
     return msg
 
-
+'''
 def assign(CNCs, job_pool, ready_pool, in_progress):  # CNC에 job들을 분배하는 함수
 
     total_delayed_time = 0
@@ -439,6 +439,7 @@ def assign(CNCs, job_pool, ready_pool, in_progress):  # CNC에 job들을 분배�
 
     msg = [total_delayed_time, total_delayed_jobs_count, last_job_execution]
     return msg
+'''
 
 
 def update(CNCs, unitTime, ready_pool, in_progress):

@@ -18,7 +18,7 @@ class Job:
         self.quantity = quantity
         self.cyctleTime = time
         #self.series = []
-        self.series  = [Component(time[i], self, quantity) for i in range(len(time))]
+        self.series  = [Component(time[i], quantity, self) for i in range(len(time))]
         self.due  = due
         self.msg = None
         self.lok_fitting = LOKFITTING
@@ -78,7 +78,7 @@ class Job:
 
 
 class Component:
-    def __init__(self, cycleTime, job, quantity):
+    def __init__(self, cycleTime, quantity, job = None):
         self.cycleTime = cycleTime
         self.done = False
         self.partOf = job
@@ -138,6 +138,13 @@ class Component:
     def assignedTo(self, cnc):
         self.cnc = cnc
 
+
+class settingTimeComponent(Component):
+    def __init__(self, cycleTime, quantity):
+        super(settingTimeComponent, self).__init__(cycleTime, quantity)
+
+    def isSetting(self):
+        return True
 """
 class NormalCompoenet(Component):
     def __init__(self, cycleTime, job, quantity):
@@ -186,8 +193,6 @@ class component_unit(unit):
 
     def set_time_delayed(self, time_delayed):
         self.time_delayed = time_delayed
-
-
 
     def isComp(self):
             return True

@@ -19,8 +19,11 @@ toolbox = base.Toolbox()
 machines = {}
 CNCs = []
 preprocessing.read_CNCs('./장비정보.xlsx', CNCs)
+
+machines = {}
+
 for cnc in CNCs:
-    machines[cnc.getNumber()] = list()
+    machines[float(cnc.getNumber())] = evaluation.Machine()
 
 
 
@@ -38,14 +41,16 @@ standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
     (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
 standard = int(standard)
 
-ichr = evaluation.interpret(machines, indiv1, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
+unAssigned = []
+
+interpreted = evaluation.interpret(machines, indiv1, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
 
 
-for k, m in ichr.items():
+for k, m in interpreted.items():
     print(k)
     print("")
-    for u in m:
-        if u.isComp():
+    for c in m:
+        if c.isComp():
             comp = u.get_component()
             job = comp.getJob()
 
@@ -53,10 +58,10 @@ for k, m in ichr.items():
             print(job.getType())
             print(job.getLokFitting())
             print(job.getLokFittingSize())
-            print(u.get_start_time())
-            print(u.get_end_time())
+            print(c.getStartDateTime())
+            print(c.getEndDateTime())
             print("")
         else:
-            print(u.get_start_time())
-            print(u.get_end_time())
+            print(c.getStartDateTime())
+            print(c.getEndDateTime())
             print("")

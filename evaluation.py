@@ -240,6 +240,11 @@ def evaluate(individual, normalization, avgs, params, c = None):
     print(scaled)
     return scaled
 
+def isLate(unit):
+        if unit.isComp():
+            comp = unit.get_component()
+            comp.
+
 def assign(job, CNCs, machines, unAssigned):
     selected_CNCs = []
     type = job.getType()

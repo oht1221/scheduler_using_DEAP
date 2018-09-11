@@ -152,10 +152,6 @@ class unit:
     def __init__(self, start_time = None, end_time = None):
         self.start_time = start_time
         self.end_time = end_time
-        self.delayed = False
-
-    def isDelayed(self):
-        return self.delayed
 
     def get_start_time(self):
         return self.start_time
@@ -178,9 +174,18 @@ class component_unit(unit):
     def __init__(self, component, start_time = None, end_time = None):
         super(component_unit, self).__init__(start_time, end_time)
         self.component = component
+        self.time_delayed = 0
+
+    def get_time_delayed(self):
+        return self.time_delayed
 
     def get_component(self):
         return self.component
+
+    def set_time_delayed(self, time_delayed):
+        self.time_delayed = time_delayed
+
+
 
     def isComp(self):
             return True

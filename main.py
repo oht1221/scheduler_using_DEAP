@@ -8,9 +8,9 @@ from preprocessing import read_CNCs
 from deap import tools, benchmarks, base, creator, algorithms
 import time, array, random, copy, math
 import matplotlib.pyplot as plt
-from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate, machine
+from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate, Machine
 from collections import deque
-import displays_results as dr
+#import displays_results as dr
 
 
 start_point = time.time()
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
     '''
     #toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
-    toolbox.register("evaluate", pre_evaluate, standard, machines, CNCs, JOB_POOL, VALVE_PRE_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs)
+    toolbox.register("evaluate", pre_evaluate, standard, CNCs, JOB_POOL, VALVE_PRE_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs)
     '''
     for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능

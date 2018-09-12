@@ -43,25 +43,27 @@ standard = int(standard)
 
 unAssigned = []
 
-interpreted = evaluation.interpret(machines, indiv1, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
+evaluation.pre_evaluate(standard, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, indiv1)
 
-
+'''
 for k, m in interpreted.items():
     print(k)
     print("")
-    for c in m:
-        if c.isComp():
-            comp = u.get_component()
+    for comp in m.getAssignments():
+        if comp.isSetting():
+            print(comp.getStartDateTime())
+            print(comp.getEndDateTime())
+            print("")
+
+        else:
             job = comp.getJob()
 
             print(job.getGoodNo())
             print(job.getType())
             print(job.getLokFitting())
             print(job.getLokFittingSize())
-            print(c.getStartDateTime())
-            print(c.getEndDateTime())
+            print(comp.getStartDateTime())
+            print(comp.getEndDateTime())
             print("")
-        else:
-            print(c.getStartDateTime())
-            print(c.getEndDateTime())
-            print("")
+    print(m.getTimeLeft())
+'''

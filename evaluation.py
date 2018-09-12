@@ -42,12 +42,10 @@ def refer_individual(indiv, job_pool):
 
     return indiv_ref
 
-def interpret(machines, indiv, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
+def interpret(machines, indiv_ref, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
     #for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
      #   v.clear()
     unAssigned = []
-    indiv_ref = refer_individual(indiv, job_pool)
-
     CNCs_2jaw = list(filter(lambda x: x.getShape() == 0, CNCs))
     CNCs_3jaw = list(filter(lambda x: x.getShape() == 1, CNCs))
     CNCs_round = list(filter(lambda  x : (x.getShape() == 1 and not (x.getNote() == "코렛")), CNCs))
@@ -218,27 +216,30 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK
     for cnc in CNCs:
         machines[float(cnc.getNumber())] = Machine()
 
-    interpreted = interpret(machines, individual, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
-
+    indiv_ref = refer_individual(individual, job_pool)
+    interpreted = interpret(machines, indiv_ref, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
-    LAST_JOB_EXECUTION = 0
-    output = {}
 
-    diff = j.getDue() - (component_end_time + 60*60*24*5) #5일간 다른 공정
-    # time_left_of_machine += j.getTime()
-    if diff < 0:
-        TOTAL_DELAYED_JOBS_COUNT += 1
-        TOTAL_DELAYED_TIME += (-1) * diff
-        u.set_delayed()
+    for job in indiv_ref:
+        componenets = job.getComponents()
+        last_component = componenets[-1]
+        last_component.getJob().getGoodCd()
+        job_end_time = last_component.getEndDateTime()
+        diff = job.getDue() - (job_end_time + 60*60*24*5) #5일간 다른 공정
 
-        if time_left_of_machine > LAST_JOB_EXECUTION:
-            LAST_JOB_EXECUTION = time_left_of_machine
+        if diff < 0:
+            job.delayed()
+            TOTAL_DELAYED_JOBS_COUNT += 1
+            TOTAL_DELAYED_TIME += (-1) * diff
+            for comp in componenets:
+                comp.delayed()
 
-    output['jobs'] = int(TOTAL_DELAYED_JOBS_COUNT)
-    output['time'] = int((TOTAL_DELAYED_TIME) / (60 * 30))
-    output['last'] = int((LAST_JOB_EXECUTION) / (60 * 30))
-    individual.fitness.values = [output['jobs'], output['time'], output['last']]
+    LAST_JOB_EXECUTION = max([m.getTimeLeft() for m in interpreted.values()])
+
+    individual.fitness.values = [int(TOTAL_DELAYED_JOBS_COUNT),
+                                 int((TOTAL_DELAYED_TIME) / (60 * 30)),
+                                 int((LAST_JOB_EXECUTION) / (60 * 30))]
     individual.assignment = interpreted
     print(individual.fitness.values)
     return individual.fitness.values
@@ -271,7 +272,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
         return -1
 
-    components = job.getComponent()
+    components = job.getComponents()
 
     timeLefts = [(machines[c.getNumber()]).getTimeLeft() for c in selected_CNCs]
     minValue = min(timeLefts)
@@ -282,28 +283,19 @@ def assign(job, CNCs, machines, unAssigned, standard):
     timeLeft = selected_machine.getTimeLeft()
 
     if timeLeft is not 0: #setting time 설정
-        component_start_time = standard + timeLeft
-        component_end_time = component_start_time + 60 * 45  # 45 minutes of setting time
-        startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
-        endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
-
-        setting_time = settingTimeComponent(cycleTime = 60 * 45, quantity = 1)
-        setting_time.setStartDateTime(startTime)
-        setting_time.setEndDateTime(endTime)
+        setting_time = Component(cycleTime=60 * 45, quantity=1, ifsetting=True)
+        setTimes(setting_time, standard, selected_machine)
         selected_machine.attach(setting_time)
+        setting_time.assignedTo(cnc)
 
-    if cnc_number in [39, 40] and job.getLokFitting():
-        component_start_time = standard + selected_machine.getTimeLeft()
-        component_end_time = component_start_time + (components[0]).getTime()  # 45 minutes of setting time
-        startTime = datetime.datetime.fromtimestamp(int(component_start_time)).strftime('%Y-%m-%d %H:%M:%S')
-        endTime = datetime.datetime.fromtimestamp(int(component_end_time)).strftime('%Y-%m-%d %H:%M:%S')
-        components[0].setStartDateTime(startTime)
-        components[0].setEndDateTime(endTime)
-        (machines[cnc_number]).attach(components[0])
+    if cnc_number in [39, 40] and job.getLokFitting(): #LOK이 39, 40에 걸린 경우 : 2차는 41, 42에서
+        setTimes(components[0], standard, selected_machine)
+        selected_machine.attach(components[0])
         components[0].assignedTo(cnc)
         cnc_next = selected_CNCs[minIndex+1]
         try:
-            (machines[cnc_number + 2]).attach(components[1])
+            setTimes(components[1], standard, selected_machine)
+            (machines[cnc_next.getNumber()]).attach(components[1])
             components[1].assignedTo(cnc_next)
 
         except Exception as ex:
@@ -311,11 +303,19 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
     else:
         for comp in components: #comp1, comp2 연달아 배정(향 후 변경 가능)
+            setTimes(comp, standard, selected_machine)
             (machines[cnc.getNumber()]).attach(comp)
             comp.assignedTo(cnc)
 
     return 0
 
+def setTimes(component, standard, selected_machine):
+    component_start_time = standard + selected_machine.getTimeLeft()
+    component_end_time = component_start_time + component.getTime()  # 45 minutes of setting time
+    component.setStartDateTime(component_start_time)
+    component.setEndDateTime(component_end_time)
+
+    return 0
 
 class Machine:
     def __init__(self):
@@ -330,5 +330,5 @@ class Machine:
     def getTimeLeft(self):
         return self.time_left
 
-    def getAssgignments(self):
+    def getAssignments(self):
         return self.assignments

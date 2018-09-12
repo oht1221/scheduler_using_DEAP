@@ -18,11 +18,12 @@ class Job:
         self.quantity = quantity
         self.cyctleTime = time
         #self.series = []
-        self.series  = [Component(time[i], quantity, self) for i in range(len(time))]
+        self.series  = [Component(time[i], quantity, job = self) for i in range(len(time))]
         self.due  = due
         self.msg = None
         self.lok_fitting = LOKFITTING
         self.lok_fitting_size = LOKFITTINGSIZE
+        self.ifDelayed = False
 
     def ifAllDone(self):
         return np.all([(self.getSeries())[i].ifDone() for i in range(len(self.getSeries()))])
@@ -36,7 +37,7 @@ class Job:
     def getSeries(self):
         return self.series
 
-    def getComponent(self):
+    def getComponents(self):
         return self.series
 
     def getSize(self):
@@ -73,12 +74,19 @@ class Job:
     def assignedTo(self, cnc):
         self.cnc = cnc
 
+    def delayed(self):
+        self.ifDelayed = True
+        return self.ifDelayed
+
+    def isDelayed(self):
+        return self.ifDelayed
+
     def setMsg(self, msg):
         self.msg = msg
 
 
 class Component:
-    def __init__(self, cycleTime, quantity, job = None):
+    def __init__(self, cycleTime, quantity, ifsetting = False, job = None):
         self.cycleTime = cycleTime
         self.done = False
         self.partOf = job
@@ -88,6 +96,8 @@ class Component:
         self.endDateTime = None
         self.startDateTime = None
         self.cnc = None
+        self.ifSetting = ifsetting
+        self.ifDelayed = False
 
     def spendTime(self, unitTime):
         self.timeLeft = self.timeLeft - unitTime
@@ -111,8 +121,12 @@ class Component:
     def getEndDateTime(self):
         return self.endDateTime
 
-    def ifDone(self):
-        return self.done
+    def delayed(self):
+        self.ifDelayed = True
+        return self.ifDelayed
+
+    def isDelayed(self):
+        return self.ifDelayed
 
     def getJob(self):
         return self.partOf
@@ -138,13 +152,9 @@ class Component:
     def assignedTo(self, cnc):
         self.cnc = cnc
 
-
-class settingTimeComponent(Component):
-    def __init__(self, cycleTime, quantity):
-        super(settingTimeComponent, self).__init__(cycleTime, quantity)
-
     def isSetting(self):
-        return True
+        return self.ifSetting
+
 """
 class NormalCompoenet(Component):
     def __init__(self, cycleTime, job, quantity):

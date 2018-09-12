@@ -16,20 +16,17 @@ creator.create("Individual", list, metrics=list, fitness=creator.FitnessMul, ind
 toolbox = base.Toolbox()
 
 
-machines = {}
+
 CNCs = []
 preprocessing.read_CNCs('./장비정보.xlsx', CNCs)
 
 machines = {}
-
 for cnc in CNCs:
     machines[float(cnc.getNumber())] = evaluation.Machine()
 
-
-
 JOB_POOL = []
 start = str(input("delivery date from: "))
-end = str(input("delivery date until: "))
+end = "29991212"
 IND_SIZE = preprocessing.make_job_pool(JOB_POOL, start, end)
 toolbox.register("schedule", random.sample, range(IND_SIZE), IND_SIZE)
 toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.schedule)
@@ -43,10 +40,10 @@ standard = int(standard)
 
 unAssigned = []
 
-evaluation.pre_evaluate(standard, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, indiv1)
-
-'''
-for k, m in interpreted.items():
+indiv_ref = evaluation.refer_individual(indiv1, JOB_POOL)
+interpreted = evaluation.interpret(machines, indiv_ref, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
+#inter, machines = evaluation.pre_evaluate(standard, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, indiv1)
+for k, m in machines.items():
     print(k)
     print("")
     for comp in m.getAssignments():
@@ -59,6 +56,7 @@ for k, m in interpreted.items():
             job = comp.getJob()
 
             print(job.getGoodNo())
+            print(job.getGoodCd())
             print(job.getType())
             print(job.getLokFitting())
             print(job.getLokFittingSize())
@@ -66,4 +64,3 @@ for k, m in interpreted.items():
             print(comp.getEndDateTime())
             print("")
     print(m.getTimeLeft())
-'''

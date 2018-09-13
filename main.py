@@ -19,9 +19,9 @@ if __name__ == "__main__":
     JOB_POOL = list()
     NGEN = 1000
     POP_SIZE =  MU = 20
-    MUTPB = 0.5
+    MUTPB = 0.4
     LAMBDA = 30
-    CXPB = 0.8
+    CXPB = 0.6
     VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
     LOK_FORGING_CNCs = [10, 15]
     LOK_HEX_CNCs = [8, 9, 11, 12, 13]

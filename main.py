@@ -17,11 +17,11 @@ start_point = time.time()
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
-    NGEN = 10000
+    NGEN = 1000
     POP_SIZE =  MU = 20
-    MUTPB = 0.25
+    MUTPB = 0.5
     LAMBDA = 30
-    CXPB = 0.75
+    CXPB = 0.8
     VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
     LOK_FORGING_CNCs = [10, 15]
     LOK_HEX_CNCs = [8, 9, 11, 12, 13]

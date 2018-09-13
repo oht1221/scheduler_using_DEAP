@@ -1,4 +1,5 @@
 from job import *
+from collections import deque
 
 class CNC:
     def __init__(self, number = 0, ground = ' ', ceiling = ' ', shape = ' ', type = ' ', note = ' '):

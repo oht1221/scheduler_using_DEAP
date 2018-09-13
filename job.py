@@ -1,7 +1,5 @@
 #-*-coding:utf-8-*-
 
-from collections import deque
-import random
 import numpy as np
 
 class Job:
@@ -18,7 +16,7 @@ class Job:
         self.quantity = quantity
         self.cyctleTime = time
         #self.series = []
-        self.series  = [Component(time[i], quantity, job = self) for i in range(len(time))]
+        self.series  = [Component(time[i], quantity, i + 1, job = self ) for i in range(len(time))]
         self.due  = due
         self.msg = None
         self.lok_fitting = LOKFITTING
@@ -86,7 +84,7 @@ class Job:
 
 
 class Component:
-    def __init__(self, cycleTime, quantity, ifsetting = False, job = None):
+    def __init__(self, cycleTime, quantity, processCd, ifsetting = False, job = None):
         self.cycleTime = cycleTime
         self.done = False
         self.partOf = job
@@ -98,6 +96,7 @@ class Component:
         self.cnc = None
         self.ifSetting = ifsetting
         self.ifDelayed = False
+        self.processcd = processCd
 
     def spendTime(self, unitTime):
         self.timeLeft = self.timeLeft - unitTime
@@ -120,6 +119,9 @@ class Component:
 
     def getEndDateTime(self):
         return self.endDateTime
+
+    def getProcessCd(self):
+        return self.processcd
 
     def delayed(self):
         self.ifDelayed = True
@@ -154,6 +156,7 @@ class Component:
 
     def isSetting(self):
         return self.ifSetting
+
 
 """
 class NormalCompoenet(Component):

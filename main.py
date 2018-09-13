@@ -9,8 +9,7 @@ from deap import tools, benchmarks, base, creator, algorithms
 import time, array, random, copy, math
 import matplotlib.pyplot as plt
 from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate, Machine
-from collections import deque
-#import displays_results as dr
+import displays_results as dr
 
 
 start_point = time.time()
@@ -18,13 +17,10 @@ start_point = time.time()
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
-    READY_POOL = deque()
-    IN_PROGRESS = deque()
-
-    NGEN = 300
-    POP_SIZE =  MU = 30
+    NGEN = 10000
+    POP_SIZE =  MU = 20
     MUTPB = 0.25
-    LAMBDA = 60
+    LAMBDA = 30
     CXPB = 0.75
     VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
     LOK_FORGING_CNCs = [10, 15]

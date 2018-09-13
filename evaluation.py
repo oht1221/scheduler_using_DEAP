@@ -219,12 +219,12 @@ def assign(job, CNCs, machines, unAssigned, standard):
     cnc = selected_CNCs[minIndex]
     cnc_number = cnc.getNumber()
     selected_machine = machines[cnc_number]
-    timeLeft = selected_machine.getTimeLeft()
-
-    if timeLeft is not 0: #setting time 설정
-        assignSettingTimeComponent(standard, selected_machine, cnc)
+    #timeLeft = selected_machine.getTimeLeft()
 
     if cnc_number in [39, 40] and job.getLokFitting(): #LOK이 39, 40에 걸린 경우 : 2차는 41, 42에서
+        if selected_machine.getTimeLeft() is not 0:  # setting time 설정
+            assignSettingTimeComponent(standard, selected_machine, cnc)
+
         setTimes(components[0], standard, selected_machine)
         selected_machine.attach(components[0])
         components[0].assignedTo(cnc)
@@ -232,6 +232,8 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
         try:
             for i in range(len(components) - 1):
+                if selected_machine.getTimeLeft() is not 0:  # setting time 설정
+                    assignSettingTimeComponent(standard, selected_machine, cnc)
                 setTimes(components[i + 1], standard, selected_machine)
                 (machines[cnc_next.getNumber()]).attach(components[i + 1])
                 components[i + 1].assignedTo(cnc_next)
@@ -241,6 +243,9 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
     else:
         for comp in components: #comp1, comp2 연달아 배정(향 후 변경 가능)
+            if selected_machine.getTimeLeft() is not 0:  # setting time 설정
+                assignSettingTimeComponent(standard, selected_machine, cnc)
+
             setTimes(comp, standard, selected_machine)
             (machines[cnc.getNumber()]).attach(comp)
             comp.assignedTo(cnc)
@@ -248,7 +253,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
     return 0
 
 def assignSettingTimeComponent(standard, selected_machine, cnc):
-    setting_time = Component(cycleTime=60 * 45, quantity=1, ifsetting=True)
+    setting_time = Component(cycleTime=60 * 45, quantity=1, processCd= None, ifsetting=True)
     setTimes(setting_time, standard, selected_machine)
     selected_machine.attach(setting_time)
     setting_time.assignedTo(cnc)

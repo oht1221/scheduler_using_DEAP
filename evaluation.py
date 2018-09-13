@@ -42,7 +42,7 @@ def refer_individual(indiv, job_pool):
 
     return indiv_ref
 
-def interpret(machines, indiv_ref, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
+def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
     #for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
      #   v.clear()
     unAssigned = []
@@ -55,7 +55,7 @@ def interpret(machines, indiv_ref, CNCs, job_pool, valve_pre_CNCs, LOK_forging_C
     CNCs_LOK_size_hex = list(filter(lambda x : x.getNumber() in LOK_hex_CNCs, CNCs))
 
 
-    for i, j in enumerate(indiv_ref):
+    for i, j in enumerate(indiv_ref): #차후에 component단위로 배정하는 것으로 변경해야함
 
         if j.lok_fitting_size == 1:
             if j.getType() == 0:
@@ -81,7 +81,7 @@ def interpret(machines, indiv_ref, CNCs, job_pool, valve_pre_CNCs, LOK_forging_C
         else:
             print("job type error!")
 
-    return machines
+    return machines, unAssigned
 
 def interpret2(machines, indiv, CNCs, job_pool):
     for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
@@ -155,7 +155,10 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK
         machines[float(cnc.getNumber())] = Machine()
 
     indiv_ref = refer_individual(individual, job_pool)
-    interpreted = interpret(machines, indiv_ref, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
+    interpreted, unassigned = interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
+
+    removesTheUnassigned(indiv_ref, unassigned)
+
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
 
@@ -163,7 +166,6 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK
         components = job.getComponents()
         last_component = components[-1]
         job_end_time = last_component.getEndDateTime()
-        print(job.getGoodCd())
         diff = job.getDue() - (job_end_time + 60*60*24*5) #5일간 다른 공정
 
         if diff < 0:
@@ -180,7 +182,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK
                                  int((LAST_JOB_EXECUTION) / (60 * 30))]
     individual.assignment = interpreted
     print(individual.fitness.values)
-    return individual.fitness.values, machines
+    return individual.fitness.values
 
 
 def evaluate(individual, normalization, avgs, params, c = None):
@@ -207,7 +209,6 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
     if len(selected_CNCs) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
         unAssigned.append(job)
-
         return -1
 
     components = job.getComponents()
@@ -221,7 +222,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
     timeLeft = selected_machine.getTimeLeft()
 
     if timeLeft is not 0: #setting time 설정
-        assignSettingTime(standard, selected_machine, cnc)
+        assignSettingTimeComponent(standard, selected_machine, cnc)
 
     if cnc_number in [39, 40] and job.getLokFitting(): #LOK이 39, 40에 걸린 경우 : 2차는 41, 42에서
         setTimes(components[0], standard, selected_machine)
@@ -246,7 +247,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
     return 0
 
-def assignSettingTime(standard, selected_machine, cnc):
+def assignSettingTimeComponent(standard, selected_machine, cnc):
     setting_time = Component(cycleTime=60 * 45, quantity=1, ifsetting=True)
     setTimes(setting_time, standard, selected_machine)
     selected_machine.attach(setting_time)
@@ -277,4 +278,10 @@ class Machine:
 
     def getAssignments(self):
         return self.assignments
+
+def removesTheUnassigned(indiv, unassinged):
+    for u in unassinged:
+        indiv.remove(u)
+
+    return unassinged
 

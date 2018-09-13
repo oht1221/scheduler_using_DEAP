@@ -20,10 +20,11 @@ toolbox = base.Toolbox()
 CNCs = []
 preprocessing.read_CNCs('./장비정보.xlsx', CNCs)
 
+'''
 machines = {}
 for cnc in CNCs:
     machines[float(cnc.getNumber())] = evaluation.Machine()
-
+'''
 JOB_POOL = []
 start = str(input("delivery date from: "))
 end = "29991212"
@@ -40,9 +41,14 @@ standard = int(standard)
 
 unAssigned = []
 
-indiv_ref = evaluation.refer_individual(indiv1, JOB_POOL)
-interpreted = evaluation.interpret(machines, indiv_ref, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
-#inter, machines = evaluation.pre_evaluate(standard, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, indiv1)
+#indiv_ref = evaluation.refer_individual(indiv1, JOB_POOL)
+#interpreted, unassigned = evaluation.interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, standard)
+inter, machines = evaluation.pre_evaluate(standard, CNCs, JOB_POOL, valve_pre_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, indiv1)
+'''
+for j in unassigned:
+    print(j.getGoodCd())
+    print("")
+
 for k, m in machines.items():
     print(k)
     print("")
@@ -64,3 +70,4 @@ for k, m in machines.items():
             print(comp.getEndDateTime())
             print("")
     print(m.getTimeLeft())
+'''

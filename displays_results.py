@@ -40,15 +40,17 @@ def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
         worksheet.col(8).width = 256 * 24
         #worksheet.write(row, 5, str(indexOfMin))
         row += 1
-        for i, unit in enumerate(value):
-            print_out_unit(unit, row, worksheet)
+        for i, comp in enumerate(value):
+            print_out_unit(comp, row, worksheet)
 
     return
 
-def print_out_unit(unit, row, worksheet):
-    time = unit.get_time()
-    job = unit.get_job()
-    due = unit.job.getDue()
+def print_out_unit(comp, row, worksheet):
+    startTime = datetime.datetime.fromtimestamp(comp.getStartDateTime()).strftime('%Y-%m-%d %H:%M:%S')
+    endTime = datetime.datetime.fromtimestamp(comp.getEndDateTime()).strftime('%Y-%m-%d %H:%M:%S')
+
+    job = comp.getJob()
+    due = job.getDue()
     # type = unit.job.getType()
     quantity = unit.job.getQuantity()
     for j, time in enumerate(times):

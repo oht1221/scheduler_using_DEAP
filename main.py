@@ -46,7 +46,7 @@ if __name__ == "__main__":
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
-    creator.create("FitnessMul", base.Fitness, weights=(-3.0, -1.0, -1.0))
+    creator.create("FitnessMul", base.Fitness, weights=(-1.0, -1.0, -1.0))
     creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int, assignment = dict)
 
     toolbox = base.Toolbox()
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     stats.register("agv", np.average)
     stats.register("min", np.min)
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
-                                       mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
+                        mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
     print("------------------------------------------Hall of fame------------------------------------------------")
     for ind in hof:
         print(ind.fitness.values)

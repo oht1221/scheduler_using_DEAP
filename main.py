@@ -7,7 +7,6 @@ from preprocessing import make_job_pool
 from preprocessing import read_CNCs
 from deap import tools, benchmarks, base, creator, algorithms
 import time, array, random, copy, math
-import matplotlib.pyplot as plt
 from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate, Machine
 import displays_results as dr
 
@@ -18,9 +17,9 @@ if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
     NGEN = 1000
-    POP_SIZE =  MU = 20
+    POP_SIZE =  MU = 30
     MUTPB = 0.4
-    LAMBDA = 30
+    LAMBDA = 25
     CXPB = 0.6
     VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
     LOK_FORGING_CNCs = [10, 15]
@@ -31,10 +30,6 @@ if __name__ == "__main__":
     end = "29991212"
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
     read_CNCs('./장비정보.xlsx', CNCs)
-
-    '''machines = {}
-    for cnc in CNCs:
-        machines[float(cnc.getNumber())] = machine'''
 
     standard = input("schedule starts on : ")
     standard_in_datetime = standard

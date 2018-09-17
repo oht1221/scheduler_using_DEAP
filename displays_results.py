@@ -17,6 +17,16 @@ def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
     worksheet.write(2, 0, "date_until")
     worksheet.write(2, 1, end)
     worksheet.col(2).width = 256 * 15
+    worksheet.write(3, 0, "총 작업 수 ")
+
+    worksheet.col(3).width = 256 * 15
+    worksheet.write(3, 0, "총 작업 수 ")
+
+    worksheet.col(3).width = 256 * 15
+    worksheet.write(3, 0, "총 작업 수 ")
+
+    worksheet.col(3).width = 256 * 15
+
     for key, machine in assignment.items():
         row = 0
         worksheet = output.add_sheet(str(key))  # 시트 생성

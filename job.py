@@ -157,7 +157,8 @@ class Component:
     def isSetting(self):
         return self.ifSetting
 
-
+    def getCnc(self):
+        return self.cnc
 """
 class NormalCompoenet(Component):
     def __init__(self, cycleTime, job, quantity):

@@ -41,6 +41,7 @@ def read_CNCs(input, CNCs):
         cnc = CNC(number, ground, ceiling, shape, type, note)
         CNCs.append(cnc)
 
+    return
 
 def initial_assignment(machines):
     cursor = accessDB.AccessDB()

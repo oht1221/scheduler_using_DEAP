@@ -76,8 +76,12 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK
     individual.fitness.values = [int(TOTAL_DELAYED_JOBS_COUNT),
                                  int((TOTAL_DELAYED_TIME) / (60 * 30)),
                                  int((LAST_JOB_EXECUTION) / (60 * 30))]
+
     individual.assignment = interpreted
+    individual.unassigned = unassigned
+
     print(individual.fitness.values)
+
     return individual.fitness.values
 
 def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
@@ -292,7 +296,9 @@ class Machine:
 
 def removesTheUnassigned(indiv, unassinged):
     for u in unassinged:
-        indiv.remove(u)
+        idx = indiv.index(u)
+        print(idx)
+        indiv.pop(idx)
 
     return unassinged
 

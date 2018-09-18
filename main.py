@@ -16,11 +16,11 @@ start_point = time.time()
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
-    NGEN = 1000
+    NGEN = 10
     POP_SIZE =  MU = 30
-    MUTPB = 0.4
+    MUTPB = 0.5
     LAMBDA = 25
-    CXPB = 0.6
+    CXPB = 0.5
     VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
     LOK_FORGING_CNCs = [10, 15]
     LOK_HEX_CNCs = [8, 9, 11, 12, 13]
@@ -37,8 +37,8 @@ if __name__ == "__main__":
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
-    creator.create("FitnessMul", base.Fitness, weights=(-1.0, -1.0, -1.0))
-    creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int, assignment = dict)
+    creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
+    creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int, assignment = dict, unassigned = list)
 
     toolbox = base.Toolbox()
     toolbox.register("schedule", random.sample, range(IND_SIZE), IND_SIZE)
@@ -105,23 +105,22 @@ if __name__ == "__main__":
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
                         mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
     print("------------------------------------------Hall of fame------------------------------------------------")
-    for ind in hof:
-        print(ind.fitness.values)
+    for i in range(len(hof)):
+        print(i + 1, hof[i].fitness.values)
     print("------------------------------------------Hall of fame------------------------------------------------")
 
     m, s = divmod((time.time() - start_point), 60)
     h, m = divmod(m, 60)
     print("%s hours %s minutes and %s seconds" %(h, m, s))
-    how_many_from_the_top = int(input("How many schedules do you want to print out? : "))
-
-
-    while 1:
+    schedules_selected = input("Choose the schedules you want to print out : ")
+    selected = schedules_selected.split(" ")
+    selected = list(map(int, selected))
+    while(1):
         try:
-            for i in range(how_many_from_the_top):
-                dr.print_job_schedule(hof[i], start, end, standard_in_datetime, "optimized", i + 1)
+            for i in selected:
+                dr.print_job_schedule(hof[i - 1], start, end, standard_in_datetime, "optimized", i)
             break
         except Exception as ex:
             print("an error occured! : ", ex)
             continue
-
 

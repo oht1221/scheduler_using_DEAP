@@ -5,27 +5,33 @@ def print_job_schedule(indiv, start, end, standard, schedule_type, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
     assignment = indiv.assignment
+    unassigned = indiv.unassigned
     modified = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;')
     color = modified
     worksheet = output.add_sheet("비고")
     worksheet.write(0, 0, "기준 시간")
     worksheet.write(0, 1, standard)
     worksheet.col(0).width = 256 * 15
+
     worksheet.write(1, 0, "date_from")
     worksheet.write(1, 1, start)
     worksheet.col(1).width = 256 * 15
+
     worksheet.write(2, 0, "date_until")
     worksheet.write(2, 1, end)
     worksheet.col(2).width = 256 * 15
-    worksheet.write(3, 0, "총 작업 수 ")
 
-    worksheet.col(3).width = 256 * 15
     worksheet.write(3, 0, "총 작업 수 ")
+    worksheet.write(3, 1, len(indiv))
+    worksheet.col(3).width = 1024 * 15
 
-    worksheet.col(3).width = 256 * 15
-    worksheet.write(3, 0, "총 작업 수 ")
+    worksheet.write(4, 0, "배정되지 않은 작업 수")
+    worksheet.write(4, 1, len(unassigned))
+    worksheet.col(4).width = 1024 * 15
 
-    worksheet.col(3).width = 256 * 15
+    worksheet.write(5, 0, "cycle time 정보 부족")
+
+    worksheet.col(5).width = 512 * 15
 
     for key, machine in assignment.items():
         row = 0

@@ -44,7 +44,8 @@ def refer_individual(indiv, job_pool):
 
 
 
-def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, individual):
+def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
+                 LOK_hex_CNCs, individual):
 
     machines = {}
     for cnc in CNCs:
@@ -297,7 +298,6 @@ class Machine:
 def removesTheUnassigned(indiv, unassinged):
     for u in unassinged:
         idx = indiv.index(u)
-        print(idx)
         indiv.pop(idx)
 
     return unassinged

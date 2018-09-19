@@ -6,27 +6,33 @@ import genetic_operators
 from preprocessing import make_job_pool
 from preprocessing import read_CNCs
 from deap import tools, benchmarks, base, creator, algorithms
+from scoop import futures
 import time, array, random, copy, math
 from evaluation import evaluate, invert_linear_normalize, invert_sigma_normalize, pre_evaluate, Machine
 import displays_results as dr
+import re
 
+CNCs = []
+JOB_POOL = list()
+NGEN = 1000
+POP_SIZE =  MU = 30
+MUTPB = 0.4
+LAMBDA = 25
+CXPB = 0.6
+VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
+LOK_FORGING_CNCs = [10, 15]
+LOK_HEX_CNCs = [8, 9, 11, 12, 13]
+toolbox = base.Toolbox()
 
-start_point = time.time()
+creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
+creator.create("individual", list, metrics=list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
+               unassigned=list)
+toolbox.register("Individual", tools.initIterate, creator.individual, toolbox.schedule)
 
-if __name__ == "__main__":
-    CNCs = []
-    JOB_POOL = list()
-    NGEN = 10
-    POP_SIZE =  MU = 30
-    MUTPB = 0.5
-    LAMBDA = 25
-    CXPB = 0.5
-    VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
-    LOK_FORGING_CNCs = [10, 15]
-    LOK_HEX_CNCs = [8, 9, 11, 12, 13]
+def main():
 
     start = str(input("delivery date from: "))
-    #end = str(input("delivery date until: "))
+    # end = str(input("delivery date until: "))
     end = "29991212"
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
     read_CNCs('./장비정보.xlsx', CNCs)
@@ -37,22 +43,26 @@ if __name__ == "__main__":
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
-    creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
-    creator.create("Individual", list, metrics = list, fitness=creator.FitnessMul, individual_number = int, assignment = dict, unassigned = list)
+    start_point = time.time()
 
-    toolbox = base.Toolbox()
+
+
     toolbox.register("schedule", random.sample, range(IND_SIZE), IND_SIZE)
-    toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.schedule)
-    toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-    #toolbox.register("mate", tools.cxPartialyMatched)
-    toolbox.register("mate", tools.cxOrdered)
-    toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
-    toolbox.register("selTournamentDCD", tools.selTournamentDCD) # top 0.5% of the whole will be selected
-    toolbox.register("select", tools.selNSGA2)
-    #toolbox.register("select", tools.selSPEA2)
 
+    toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
+    toolbox.register("mate", tools.cxPartialyMatched)
+    # toolbox.register("mate", tools.cxOrdered)
+    toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
+    toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
+    toolbox.register("select", tools.selNSGA2)
+    # toolbox.register("select", tools.selSPEA2)
+
+
+    toolbox.register("evaluate", pre_evaluate, standard, CNCs, JOB_POOL, VALVE_PRE_CNCs,
+                     LOK_FORGING_CNCs, LOK_HEX_CNCs)
 
     pop = toolbox.population(n=POP_SIZE)
+
     for i in range(POP_SIZE):
         pop[i].individual_number = i
     JOBS = []
@@ -84,7 +94,7 @@ if __name__ == "__main__":
     mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
     '''
     #toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
-    toolbox.register("evaluate", pre_evaluate, standard, CNCs, JOB_POOL, VALVE_PRE_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs)
+
     '''
     for i in range(POP_SIZE):
         pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
@@ -102,6 +112,8 @@ if __name__ == "__main__":
     stats = tools.Statistics()
     stats.register("agv", np.average)
     stats.register("min", np.min)
+
+    NGEN = int(input("# of gen: "))
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
                         mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
     print("------------------------------------------Hall of fame------------------------------------------------")
@@ -113,7 +125,7 @@ if __name__ == "__main__":
     h, m = divmod(m, 60)
     print("%s hours %s minutes and %s seconds" %(h, m, s))
     schedules_selected = input("Choose the schedules you want to print out : ")
-    selected = schedules_selected.split(" ")
+    selected = re.findall("\d+", schedules_selected)
     selected = list(map(int, selected))
     while(1):
         try:
@@ -124,3 +136,7 @@ if __name__ == "__main__":
             print("an error occured! : ", ex)
             continue
 
+
+if __name__ == "__main__":
+    toolbox.register("map", futures.map)
+    main()

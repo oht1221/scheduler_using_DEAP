@@ -38,7 +38,6 @@ toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutatio
 toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
 toolbox.register("select", tools.selNSGA2)
 
-
 # toolbox.register("select", tools.selSPEA2)
 
 def main():
@@ -120,7 +119,6 @@ def main():
     stats.register("min", np.min)
 
     NGEN = int(input("# of gen: "))
-
 
 
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,

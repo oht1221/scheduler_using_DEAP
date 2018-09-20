@@ -51,20 +51,17 @@ toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the 
 toolbox.register("select", tools.selNSGA2)
 
 
+if __name__ == "__main__":
+    pool = multiprocessing.Pool(processes=4)
+    toolbox.register("map", pool.map)
 
-def main():
-
-
-    #start = str(input("delivery date from: "))
+    # start = str(input("delivery date from: "))
     # end = str(input("delivery date until: "))
 
 
     read_CNCs('./장비정보.xlsx', CNCs)
 
-
-
     start_point = time.time()
-
 
     # toolbox.register("select", tools.selSPEA2)
 
@@ -86,9 +83,8 @@ def main():
 
     NGEN = int(input("# of gen: "))
 
-
-    result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
-                        mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
+    result = algorithms.eaMuPlusLambda(pop, toolbox, mu=MU, lambda_=LAMBDA, cxpb=CXPB,
+                                       mutpb=MUTPB, ngen=NGEN, stats=None, halloffame=hof, verbose=None)
     print("------------------------------------------Hall of fame------------------------------------------------")
     for i in range(len(hof)):
         print(i + 1, hof[i].fitness.values)
@@ -97,24 +93,20 @@ def main():
     m, s = divmod((time.time() - start_point), 60)
     h, m = divmod(m, 60)
 
-    print("%s hours %s minutes and %s seconds" %(h, m, s))
+    print("%s hours %s minutes and %s seconds" % (h, m, s))
 
     schedules_selected = input("Choose the schedules you want to print out : ")
     selected = re.findall("\d+", schedules_selected)
     selected = list(map(int, selected))
 
-    while(1):
+    while (1):
         try:
             for i in selected:
+                print(i)
                 dr.print_job_schedule(hof[i - 1], start, end, standard_in_datetime, "optimized", i)
             break
         except Exception as ex:
             print("an error occured! : ", ex)
             continue
 
-
-if __name__ == "__main__":
-    pool = multiprocessing.Pool()
-    toolbox.register("map", pool.map)
-
-    main()
+    pool.close()

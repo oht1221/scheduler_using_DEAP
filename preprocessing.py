@@ -220,7 +220,7 @@ def make_job_pool(job_pool, start, end):
         row = cursor1.fetchone()
 
     total_number = len(job_pool)
-
+    print("the total # of jobs: %d", total_number)
     return total_number
 
 

@@ -79,51 +79,6 @@ def main():
 
     pop = toolbox.population(n=POP_SIZE)
 
-    for i in range(POP_SIZE):
-        pop[i].individual_number = i
-    JOBS = []
-    TIMES = []
-    LAST = []
-    '''
-    for i in range(POP_SIZE):
-        indiv = pop[i]
-        print("---------------------indiv %d---------------------"%(i))
-        for j in indiv:
-            print(JOB_POOL[j].getWorkno())
-        result = pre_evaluate(indiv, standard, machines, CNCs, JOB_POOL)
-        jobs = result['jobs']
-        time = result['time']
-        last = result['last']
-        print(jobs)
-        JOBS.append(jobs)
-        print(time)
-        TIMES.append(time)
-        print(last)
-        LAST.append(last)
-        print("---------------------indiv %d---------------------"%(i))
-        indiv.metrics.append(jobs)
-        indiv.metrics.append(time)
-        indiv.metrics.append(last)
-       # print(pop[i].fitness)
-    avgs = [np.average(JOBS), np.average(TIMES), np.average(LAST)]
-    sigmas = [np.std(JOBS), np.std(TIMES), np.std(LAST)]
-    mins = [np.min(JOBS), np.min(TIMES), np.min(LAST)]
-    '''
-    #toolbox.register("evaluate", lambda ind : evaluate(ind, invert_sigma_normalize, avgs, sigmas, 3))
-
-    '''
-    for i in range(POP_SIZE):
-        pop[i].fitness.values = evaluate(pop[i], invert_sigma_normalize, avgs, sigmas, 3) # 파라미터 C 선택 가능
-        print(pop[i].individual_number)
-        print(pop[i].fitness)
-    '''
-
-    '''
-    selected = toolbox.selSPEA2(individuals=pop, k=5)
-    print("5 pareto optimals")
-    for i in range(5):
-        print("indiv # :" + str(selected[i].individual_number) + " " + str(selected[i].fitness))
-    '''
     hof = tools.ParetoFront()
     stats = tools.Statistics()
     stats.register("agv", np.average)

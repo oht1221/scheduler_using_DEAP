@@ -30,7 +30,16 @@ creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
 creator.create("individual", list, metrics=list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
                unassigned=list)
 toolbox.register("Individual", tools.initIterate, creator.individual, toolbox.schedule)
-toolbox.register("map", futures.map)
+
+toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
+toolbox.register("mate", tools.cxPartialyMatched)
+# toolbox.register("mate", tools.cxOrdered)
+toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
+toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
+toolbox.register("select", tools.selNSGA2)
+
+
+# toolbox.register("select", tools.selSPEA2)
 
 def main():
 
@@ -52,17 +61,11 @@ def main():
 
 
 
-    toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
-    toolbox.register("mate", tools.cxPartialyMatched)
-    # toolbox.register("mate", tools.cxOrdered)
-    toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
-    toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
-    toolbox.register("select", tools.selNSGA2)
-    # toolbox.register("select", tools.selSPEA2)
-
-
     toolbox.register("evaluate", pre_evaluate, standard, CNCs, JOB_POOL, VALVE_PRE_CNCs,
                      LOK_FORGING_CNCs, LOK_HEX_CNCs)
+
+
+
 
     pop = toolbox.population(n=POP_SIZE)
 
@@ -117,6 +120,9 @@ def main():
     stats.register("min", np.min)
 
     NGEN = int(input("# of gen: "))
+
+
+
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu = MU, lambda_ = LAMBDA, cxpb = CXPB,
                         mutpb = MUTPB, ngen = NGEN, stats = None, halloffame = hof, verbose = None)
     print("------------------------------------------Hall of fame------------------------------------------------")
@@ -141,5 +147,5 @@ def main():
 
 
 if __name__ == "__main__":
-
+    toolbox.register("map", futures.map)
     main()

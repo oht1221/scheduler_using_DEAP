@@ -24,7 +24,7 @@ LOK_FORGING_CNCs = [10, 15]
 LOK_HEX_CNCs = [8, 9, 11, 12, 13]
 toolbox = base.Toolbox()
 
-toolbox.register("schedule", random.sample, range(497), 497)
+toolbox.register("schedule", random.sample, range(275), 275)
 
 creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
 creator.create("individual", list, metrics=list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
@@ -37,7 +37,7 @@ toolbox.register("mate", tools.cxPartialyMatched)
 toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
 toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
 toolbox.register("select", tools.selNSGA2)
-
+print("haha")
 # toolbox.register("select", tools.selSPEA2)
 
 def main():

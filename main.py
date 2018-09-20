@@ -2,8 +2,6 @@
 
 import random
 import numpy as np
-from variables import *
-
 
 from deap import tools, benchmarks, base, creator, algorithms
 from scoop import futures

@@ -24,10 +24,13 @@ LOK_FORGING_CNCs = [10, 15]
 LOK_HEX_CNCs = [8, 9, 11, 12, 13]
 toolbox = base.Toolbox()
 
+toolbox.register("schedule", random.sample, range(497), 497)
+
 creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
 creator.create("individual", list, metrics=list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
                unassigned=list)
 toolbox.register("Individual", tools.initIterate, creator.individual, toolbox.schedule)
+toolbox.register("map", futures.map)
 
 def main():
 
@@ -47,7 +50,7 @@ def main():
 
 
 
-    toolbox.register("schedule", random.sample, range(IND_SIZE), IND_SIZE)
+
 
     toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
     toolbox.register("mate", tools.cxPartialyMatched)
@@ -138,5 +141,5 @@ def main():
 
 
 if __name__ == "__main__":
-    toolbox.register("map", futures.map)
+
     main()

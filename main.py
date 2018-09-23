@@ -3,7 +3,6 @@
 import random
 import numpy as np
 
-from deap import tools, benchmarks, base, creator, algorithms
 from scoop import futures
 import multiprocessing
 import time, array, random, copy, math
@@ -34,6 +33,8 @@ LOK_HEX_CNCs = [8, 9, 11, 12, 13]
 
 start = sys.argv[1]
 end = "29991212"
+hof = tools.ParetoFront()
+stats = tools.Statistics()
 
 IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
 
@@ -49,11 +50,12 @@ toolbox.register("mate", tools.cxPartialyMatched)
 toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
 toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
 toolbox.register("select", tools.selNSGA2)
+toolbox.register("map", futures.map)
 
 
 if __name__ == "__main__":
-    pool = multiprocessing.Pool(processes=4)
-    toolbox.register("map", pool.map)
+
+
 
     # start = str(input("delivery date from: "))
     # end = str(input("delivery date until: "))
@@ -76,8 +78,7 @@ if __name__ == "__main__":
 
     pop = toolbox.population(n=POP_SIZE)
 
-    hof = tools.ParetoFront()
-    stats = tools.Statistics()
+
     stats.register("agv", np.average)
     stats.register("min", np.min)
 
@@ -85,6 +86,8 @@ if __name__ == "__main__":
 
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu=MU, lambda_=LAMBDA, cxpb=CXPB,
                                        mutpb=MUTPB, ngen=NGEN, stats=None, halloffame=hof, verbose=None)
+
+
     print("------------------------------------------Hall of fame------------------------------------------------")
     for i in range(len(hof)):
         print(i + 1, hof[i].fitness.values)
@@ -99,6 +102,7 @@ if __name__ == "__main__":
     selected = re.findall("\d+", schedules_selected)
     selected = list(map(int, selected))
 
+
     while (1):
         try:
             for i in selected:
@@ -109,4 +113,3 @@ if __name__ == "__main__":
             print("an error occured! : ", ex)
             continue
 
-    pool.close()

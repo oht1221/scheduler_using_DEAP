@@ -6,23 +6,28 @@ from tkinter import *
 
 root = Tk()
 
+def read_schedule(input):
+    
+    print(input)
+
 def onClick():
     root.filename = filedialog.askopenfilename(initialdir = "./schedules",
                                                title = 'choose your schdule',
                                                filetypes = (('excel files', '*.xlsx'),
                                                             ('excel files', '*.xls'))
                                                )
-    return root.filename
 
 
-btn = Button(root, text = "스케줄 선택", command = onClick)
-btn.grid(row = 1, column = 1)
-
+btn1 = Button(root, text = "스케줄 선택", command = onClick)
+btn1.grid(row = 1, column = 1)
+btn2 = Button(root, text = "완료", command = root.destroy)
+btn2.grid(row = 1, column = 2)
 root.mainloop()
 
 
-def read_schedule(input):
-    print(input)
+read_schedule(root.filename)
+
+
 
 #read_schedule(input)
 

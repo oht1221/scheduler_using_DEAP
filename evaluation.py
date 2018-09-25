@@ -61,7 +61,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
 
     for job in indiv_ref:
         components = job.getComponents()
-        last_component = components[-1]
+        last_component = components[-1] #마지막 공정이 끝난 시간
         job_end_time = last_component.getEndDateTime()
         diff = job.getDue() - (job_end_time + 60*60*24*5) #5일간 다른 공정
 

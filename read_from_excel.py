@@ -3,12 +3,82 @@ import datetime
 import sys
 from tkinter import filedialog
 from tkinter import *
+import time
+from evaluation import Machine
+from job import *
 
 root = Tk()
+JOB_POOL = []
+work_numbers = []
 
 def read_schedule(input):
-    
-    print(input)
+    workbook = xlrd.open_workbook(input)
+    worksheet = workbook.sheet_by_name('비고')
+    row = worksheet.row_values(0)
+    standard = row[1]
+    standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
+        (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
+    print(standard)
+
+    machines = {}
+    i = 1
+    worksheet = workbook.sheet_by_index(i)
+
+    while worksheet is not None:
+        M = Machine()
+        machines[worksheet.name] = M
+        print(worksheet.name)
+
+        assignment = M.getAssignments()
+        n_row = worksheet.nrows
+
+        for r in range(n_row - 1):
+
+            row = worksheet.row_values(r + 1)
+            workno = row[0]
+            if workno == 'Setting Time':
+
+            goodCd = row[2]
+            gubun = row[3]
+            start = row[5]
+            end = row[6]
+            due_date = row[7]
+            qty = row[8]
+
+            due_date_seconds = time.mktime(
+                (int(due_date[0:4]), int(due_date[5:7]), int(due_date[8:10]), 12, 0, 0, 0, 0, 0))  # 정오 기준
+            due_date_seconds = int(due_date_seconds)
+            print(due_date_seconds)
+            start_date_seconds = time.mktime(
+                (int(start[0:4]), int(start[5:7]), int(start[8:10]), int(start[11:13]), int(start[14:16]), int(start[17:19]), 0, 0, 0))
+            start_date_seconds = int(start_date_seconds)
+
+            end_date_time = time.mktime(
+                (int(start[0:4]), int(start[5:7]), int(start[8:10]), int(start[11:13]), int(start[14:16]),
+                 int(start[17:19]), 0, 0, 0))
+            start_date_seconds = int(start_date_seconds)
+            times =[0,0,0]
+            if work_numbers.count(workno) == 0:
+                new_job = Job(workno=workno, goodCd=goodCd, type=gubun, quantity=qty, time = times,
+                             due = due_date_seconds)
+                JOB_POOL.append(new_job)
+
+
+
+            print("")
+        print("")
+
+        i += 1
+        try:
+            worksheet = workbook.sheet_by_index(i)
+        except Exception:
+            break
+
+'''
+       
+        #while row is not None:
+'''
+
 
 def onClick():
     root.filename = filedialog.askopenfilename(initialdir = "./schedules",

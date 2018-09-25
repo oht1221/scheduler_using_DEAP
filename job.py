@@ -3,7 +3,7 @@
 import numpy as np
 
 class Job:
-    def __init__(self, workno, goodNo, goodCd, quantity, time = None ,type = None,
+    def __init__(self, workno, goodCd, quantity, goodNo = None, time = None , type = None,
                  size = None, rawNo = None, rawCd = None, due = 0, LOKFITTING = None, LOKFITTINGSIZE = None):
         self.workno = workno
         self.goodNo = goodNo

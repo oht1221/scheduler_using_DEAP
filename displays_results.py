@@ -83,7 +83,7 @@ def print_out_unit(comp, row, worksheet, color):
             worksheet.write(row, 0, job.getWorkno())
 
         worksheet.write(row, 1, "P%d" % comp.getProcessCd())
-        worksheet.write(row, 2, job.getGoodNo())
+        worksheet.write(row, 2, job.getGoodCd())
         worksheet.write(row, 3, job.getType())
         worksheet.write(row, 4, job.getLokFittingSize())
         worksheet.write(row, 5, startTime)

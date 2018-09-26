@@ -206,7 +206,7 @@ def make_job_pool(job_pool, start, end):
         elif row[10] == 'N':
             LOKFITTINGSIZE = 0
 
-        search_cycle_time(cursor2, cycle_time, GoodCd, Gubun, deli_start, deli_end)
+        search_cycle_time(cursor2, cycle_time, GoodCd)
 
         if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
             row = cursor1.fetchone()
@@ -224,30 +224,33 @@ def make_job_pool(job_pool, start, end):
     return total_number
 
 
-def search_cycle_time(cursor, cycle_time, GoodCd, Gubun, deli_start, deli_end):
+def search_cycle_time(cursor, cycle_time, GoodCd):
+
     flag1 = 0
     flag2 = 0
+    flag3 = 0
+    '''
     if Gubun == 1:
         flag3 = 1
     else:  # Gubun == 0: # Gubun = 0 이면 3차 가공까지
         flag3 = 0
-
-    cursor.execute("""
-                    select  TWRC.Goodcd, TWRC.Workno, TWRC.Cnc,TWRC.Seq, TWRC.Processcd, TWRC.Prodqty, TWRC.Errqty,  
-TWRC.Cycletime, max(TWRC.Workdate) as workdate, TWRC.Starttime, TWRC.Endtime
-from 
-(select Workno, Workdate, Acceptno, DeliveryDate , Goodcd, OrderQty
-from TWorkreport_Han_Eng
-where Goodcd = """ + GoodCd +""") a
- inner join TWorkReport_CNC TWRC on  TWRC.Goodcd = a.Goodcd
-   group by TWRC.Goodcd, TWRC.Workno, TWRC.Cnc,TWRC.Seq, TWRC.Processcd, TWRC.Prodqty, TWRC.Errqty,
-TWRC.Cycletime, TWRC.Workdate, TWRC.Starttime, TWRC.Endtime  
-  order by  TWRC.workdate DESC --TWHE.Starttime
-                    """
+        
+    '''
+    cursor.execute("""select  TWRC.Goodcd, TWRC.Workno, TWRC.Cnc,TWRC.Seq, TWRC.Processcd, TWRC.Prodqty, TWRC.Errqty,  
+        TWRC.Cycletime, max(TWRC.Workdate) as workdate, TWRC.Starttime, TWRC.Endtime
+        from 
+        (select Workno, Workdate, Acceptno, DeliveryDate , Goodcd, OrderQty
+        from TWorkreport_Han_Eng 
+        where Goodcd = """ + GoodCd + """  ) a
+        inner join TWorkReport_CNC TWRC on  TWRC.Goodcd = a.Goodcd
+        group by TWRC.Goodcd, TWRC.Workno, TWRC.Cnc,TWRC.Seq, TWRC.Processcd, TWRC.Prodqty, TWRC.Errqty,
+        TWRC.Cycletime, TWRC.Workdate, TWRC.Starttime, TWRC.Endtime  
+        order by  TWRC.workdate DESC --TWHE.Starttime """
                    )
     row = cursor.fetchone()
 
     while row:
+
         processcd = row[4].strip()
         if processcd == 'P1' and flag1 == 0:
             cycle_time.append(int(row[7]))
@@ -261,7 +264,13 @@ TWRC.Cycletime, TWRC.Workdate, TWRC.Starttime, TWRC.Endtime
 
         if flag1 == 1 and flag2 == 1 and flag3 == 1:
             break
+
         row = cursor.fetchone()
+
+    try:
+        cycle_time.remove(0)
+    except Exception:
+        pass
 
 
 

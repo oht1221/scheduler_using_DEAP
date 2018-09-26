@@ -15,6 +15,7 @@ indiv = []
 work_numbers = []
 
 machines = {}
+new_job = None
 
 def inputFile():
     root.filename = filedialog.askopenfilename(initialdir = "./schedules",
@@ -23,7 +24,7 @@ def inputFile():
                                                             ('excel files', '*.xls'))
                                                )
 
-def inputVariables():
+def inputVariables(new_job):
     workno = input_workno.get()
     due = input_due.get()
 
@@ -33,14 +34,15 @@ def inputVariables():
 
     goodNo = input_goodNo.get()
     goodCd = input_goodCd.get()
-    qty = input_qty.get()
+    qty = int(input_qty.get())
     cursor = AccessDB()
     cycle_time = []
     gubun = input_gubun.get()
     search_cycle_time(cursor, cycle_time, goodCd)
-    print(sum(cycle_time) * 300  + 60*60*24*4)
     new_job = Job(workno=workno, goodCd=goodCd, type=gubun, quantity=qty, time=cycle_time,
                               due=due_date_seconds)
+
+
 
 
 

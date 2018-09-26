@@ -9,7 +9,6 @@ class Job:
         self.goodNo = goodNo
         self.goodCd = goodCd
         self.timeLeft = sum(time) * quantity + 60*60*24*4# (60*60)*(24)*(5) + (60*60) #타공정 소요시간 + 새셋팅 시간
-        #print(self.timeLeft)
         self.type = type
         self.size = size
         self.rawNo = rawNo

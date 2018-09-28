@@ -52,23 +52,25 @@ def score(assignments):
                 comp.delayed()
     return TOTAL_DELAYED_TIME
 
-def insert(CNC_list, insertion):
+def insert(CNC_list, insertion, due):
     selected_machines = [machines[c.cnc_number()] for c in CNC_list]
 
     for machine in selected_machines:
         assignments = machine.getAssignments()
         new_assignments = copy.deepcopy(assignments)
 
-        i = 0
+        position = 0
         while 1:
-            for j, comp in insertion.items():
-                new_assignments.insert(i+j, comp)
-            i += 2
+            for step, insertion_comp in insertion.items():
+                extension = insertion_comp.getTime()
+                for pushed_back_comp in new_assignments[position:]:  # insertion position 뒤에있는 component들 extension만큼 뒤로 밀어냄
+                    pushed_back_comp.setStartDateTime(pushed_back_comp.getStartDateTime() + extension)
+                    pushed_back_comp.setEndDateTime(pushed_back_comp.getEndDateTime() + extension)
+                new_assignments.insert(position + step, insertion_comp)
 
-            if i >= len(assignments):
+            if insertion[-1].getEndDateTime() > due:
                 break
-        if insertion[-1].
-
+            position += 2
 
 def makeInsertion(job):
 

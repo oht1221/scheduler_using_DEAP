@@ -22,6 +22,7 @@ read_CNCs('./장비정보.xlsx', CNCs)
 
 machines = {}
 new_job = None
+standard = 0
 
 CNCs_2jaw = list(filter(lambda x: x.getShape() == 0, CNCs))
 CNCs_3jaw = list(filter(lambda x: x.getShape() == 1, CNCs))
@@ -53,24 +54,52 @@ def score(assignments):
     return TOTAL_DELAYED_TIME
 
 def insert(CNC_list, insertion, due):
-    selected_machines = [machines[c.cnc_number()] for c in CNC_list]
+    selected_machines = [machines[float(c.getNumber())] for c in CNC_list]
 
     for machine in selected_machines:
+        print()
         assignments = machine.getAssignments()
-        new_assignments = copy.deepcopy(assignments)
-
         position = 0
+        insertion_comp_start = standard + 0
         while 1:
-            for step, insertion_comp in insertion.items():
+            print("position : ", position)
+
+            new_assignments = copy.deepcopy(assignments)
+            step = 0
+            for insertion_comp in insertion:
                 extension = insertion_comp.getTime()
-                for pushed_back_comp in new_assignments[position:]:  # insertion position 뒤에있는 component들 extension만큼 뒤로 밀어냄
+                for pushed_back_comp in new_assignments[(position + step):]:  # insertion position 뒤에있는 component들 extension만큼 뒤로 밀어냄
                     pushed_back_comp.setStartDateTime(pushed_back_comp.getStartDateTime() + extension)
                     pushed_back_comp.setEndDateTime(pushed_back_comp.getEndDateTime() + extension)
-                new_assignments.insert(position + step, insertion_comp)
 
-            if insertion[-1].getEndDateTime() > due:
+                    if not pushed_back_comp.isSetting():
+                        diff = min((pushed_back_comp.getJob()).getDue() - pushed_back_comp.getEndDateTime(), 0)
+
+                insertion_comp.setStartDateTime(insertion_comp_start)
+                insertion_comp.setEndDateTime(insertion_comp_start + insertion_comp.getTime())
+                insertion_comp_start = insertion_comp.getEndDateTime()
+                new_assignments.insert(position + step, insertion_comp)
+                step += 1
+
+            if (insertion[-1]).getEndDateTime() > due: #새 작업의 납기 못 지키게 되면 다른 machine으로
                 break
+
+            for comp in new_assignments:
+                startTime = datetime.datetime.fromtimestamp(comp.getStartDateTime()).strftime('%Y-%m-%d %H:%M:%S')
+                endTime = datetime.datetime.fromtimestamp(comp.getEndDateTime()).strftime('%Y-%m-%d %H:%M:%S')
+
+                if not comp.isSetting():
+                    print(comp.getJob().getWorkno() + " " + str(startTime) + " " + str(endTime))
+                else :
+                    print("setting time", startTime, endTime)
+                print("")
+
             position += 2
+            if position >= len(assignments) - 1: # 마지막 포지션까지 왔으면
+                break
+            insertion_comp_start = assignments[position - 1].getEndDateTime()
+
+
 
 def makeInsertion(job):
 
@@ -82,35 +111,37 @@ def makeInsertion(job):
 
     return insertion
 
-def insertAndCheck():
+def insertAndCheck(new_job):
 
     TOTAL_DELAYED_JOBS_COUNT = 0
     TOTAL_DELAYED_TIME = 0
     insertion = makeInsertion(new_job)
-
+    if len(insertion) <= 1:
+        messagebox.showerror("Warning!", "해당 품번 코드의 사이클 타임 정보를 읽어올 수 없습니다.")
+        return
     new_assignments = None
 
     if new_job.getLokFittingSize() == 1:
         if new_job.getType() == 0:
-            new_assignments = insert(CNCs_LOK_size_forging, insertion)
+            new_assignments = insert(CNCs_LOK_size_forging, insertion, new_job.getDue())
 
         elif new_job.getType() == 1:
-            new_assignments = insert(CNCs_LOK_size_hex, insertion)
+            new_assignments = insert(CNCs_LOK_size_hex, insertion, new_job.getDue())
 
     elif new_job.getType() == 0:
-        new_assignments = insert(CNCs_2jaw, insertion)
+        new_assignments = insert(CNCs_2jaw, insertion, new_job.getDue())
 
     elif new_job.getType() == 1:
-        new_assignments = insert(CNCs_3jaw, insertion)
+        new_assignments = insert(CNCs_3jaw, insertion, new_job.getDue())
 
     elif new_job.getType() == 2:
-        new_assignments = insert(CNCs_round, insertion)
+        new_assignments = insert(CNCs_round, insertion, new_job.getDue())
 
     elif new_job.getType() == 3:
-        new_assignments = insert(CNCs_square, insertion)
+        new_assignments = insert(CNCs_square, insertion, new_job.getDue())
 
     elif new_job.getType() == 4:
-        new_assignments = insert(CNCs_valve_pre, insertion)
+        new_assignments = insert(CNCs_valve_pre, insertion, new_job.getDue())
 
     else:
         print("job type error!")
@@ -126,7 +157,11 @@ def readFile():
 
     messagebox.showinfo("message", "파일 읽기 완료!")
 
-def inputVariables(new_job):
+def inputVariables():
+    global standard
+    if standard == 0:
+        messagebox.showerror("Warning!", "스케줄을 먼저 선택하셔야합니다.")
+        return
     workno = input_workno.get()
     due = input_due.get()
 
@@ -139,14 +174,14 @@ def inputVariables(new_job):
     qty = int(input_qty.get())
     cursor = AccessDB()
     cycle_time = []
-    gubun = input_gubun.get()
+    gubun = int(input_gubun.get())
 
     search_cycle_time(cursor, cycle_time, goodCd)
 
     new_job = Job(workno=workno, goodCd=goodCd, type=gubun, quantity=qty, time=cycle_time,
                               due=due_date_seconds)
 
-
+    insertAndCheck(new_job)
 
 
 
@@ -154,6 +189,7 @@ def read_schedule(input):
     workbook = xlrd.open_workbook(input)
     worksheet = workbook.sheet_by_name('비고')
     row = worksheet.row_values(0)
+    global standard
     standard = row[1]
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
@@ -164,8 +200,8 @@ def read_schedule(input):
 
     while worksheet is not None:
         M = Machine()
-        machines[worksheet.name] = M
-
+        machines[float(worksheet.name)] = M
+        print(float(worksheet.name))
         assignment = M.getAssignments()
         n_row = worksheet.nrows
 
@@ -182,8 +218,8 @@ def read_schedule(input):
             start_date_seconds = int(start_date_seconds)
 
             end_date_time = time.mktime(
-                (int(start[0:4]), int(start[5:7]), int(start[8:10]), int(start[11:13]), int(start[14:16]),
-                 int(start[17:19]), 0, 0, 0))
+                (int(end[0:4]), int(end[5:7]), int(end[8:10]), int(end[11:13]), int(end[14:16]),
+                 int(end[17:19]), 0, 0, 0))
             end_date_time = int(end_date_time)
 
             if workno == 'Setting Time':

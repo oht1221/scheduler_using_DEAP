@@ -284,21 +284,9 @@ class Machine:
         self.assignments = list()
         self.time_left = 0
 
-    @singledispatch
     def attach(self, component):
         self.assignments.append(component)
         self.time_left += component.getTime()
-
-    @attach.register(int)
-    def _(self, position, component):
-        extension = component.getTime()
-        for comp in self.assignments[position:]:  #position 뒤에있는 component들 extension만큼 뒤로 밀어냄
-            comp.setStartDateTime(comp.getStartDateTime() + extension)
-            comp.setEndDateTime(comp.getEndDateTime() + extension)
-        self.assignments.insert(position, component)
-        self.time_left += extension
-
-        return position + 1
 
     def getTimeLeft(self):
         return self.time_left

@@ -9,7 +9,7 @@ from evaluation import Machine
 from job import *
 from accessDB import *
 from preprocessing import search_cycle_time, read_CNCs
-from displays_results import print_out_unit
+from displays_results import *
 import copy
 
 VALVE_PRE_CNCs = [1, 2, 3, 32, 33, 34, 37, 38, 44]
@@ -54,26 +54,27 @@ def score(assignments):
     return TOTAL_DELAYED_TIME
 
 def insert(CNC_list, insertion, due):
-    selected_machines = [machines[float(c.getNumber())] for c in CNC_list]
+    selected_machines = dict()
+    for c in CNC_list:
+        selected_machines[float(c.getNumber())] = machines[float(c.getNumber())]
 
-    for machine in selected_machines:
-        print()
+    diff_smallest = 99999999999999999
+    machines_number = 0
+    best = None
+    for num, machine in selected_machines.items():
         assignments = machine.getAssignments()
         position = 0
         insertion_comp_start = standard + 0
         while 1:
-            print("position : ", position)
-
             new_assignments = copy.deepcopy(assignments)
+            new_insertion = copy.deepcopy(insertion)
             step = 0
-            for insertion_comp in insertion:
+            for insertion_comp in new_insertion:
                 extension = insertion_comp.getTime()
                 for pushed_back_comp in new_assignments[(position + step):]:  # insertion position 뒤에있는 component들 extension만큼 뒤로 밀어냄
                     pushed_back_comp.setStartDateTime(pushed_back_comp.getStartDateTime() + extension)
                     pushed_back_comp.setEndDateTime(pushed_back_comp.getEndDateTime() + extension)
 
-                    if not pushed_back_comp.isSetting():
-                        diff = min((pushed_back_comp.getJob()).getDue() - pushed_back_comp.getEndDateTime(), 0)
 
                 insertion_comp.setStartDateTime(insertion_comp_start)
                 insertion_comp.setEndDateTime(insertion_comp_start + insertion_comp.getTime())
@@ -81,25 +82,38 @@ def insert(CNC_list, insertion, due):
                 new_assignments.insert(position + step, insertion_comp)
                 step += 1
 
-            if (insertion[-1]).getEndDateTime() > due: #새 작업의 납기 못 지키게 되면 다른 machine으로
+            if (new_insertion[-1]).getEndDateTime() > due: #새 작업의 납기 못 지키게 되면 다른 machine으로
                 break
 
-            for comp in new_assignments:
-                startTime = datetime.datetime.fromtimestamp(comp.getStartDateTime()).strftime('%Y-%m-%d %H:%M:%S')
-                endTime = datetime.datetime.fromtimestamp(comp.getEndDateTime()).strftime('%Y-%m-%d %H:%M:%S')
-
+            diff = 0
+            for comp in new_assignments[(position + step):]:
                 if not comp.isSetting():
-                    print(comp.getJob().getWorkno() + " " + str(startTime) + " " + str(endTime))
-                else :
-                    print("setting time", startTime, endTime)
-                print("")
+                    diff += (-1) * min((comp.getJob()).getDue() - comp.getEndDateTime(), 0)
+            if diff < diff_smallest:  # diff 더 작은 작업 배치로 바꿈
+                diff_smallest = diff
+                best = new_assignments
+                cnc_num = num
 
             position += 2
             if position >= len(assignments) - 1: # 마지막 포지션까지 왔으면
                 break
-            insertion_comp_start = assignments[position - 1].getEndDateTime()
+            insertion_comp_start = assignments[position].getStartDateTime()
 
+    if best is not None:
+        messagebox.showinfo("message", "새로운 스케줄을 출력하시겠습니까?")
+        machines[num].assignments = best
+        print_job_schedule()
+        for comp in best:
+            startTime = datetime.datetime.fromtimestamp(comp.getStartDateTime()).strftime('%Y-%m-%d %H:%M:%S')
+            endTime = datetime.datetime.fromtimestamp(comp.getEndDateTime()).strftime('%Y-%m-%d %H:%M:%S')
 
+            if not comp.isSetting():
+                print(comp.getJob().getWorkno() + " " + str(startTime) + " " + str(endTime))
+            else:
+                print("setting time", startTime, endTime)
+            print("")
+    else:
+        messagebox.showerror("Warning!", "납기를 만족시킬 수 없습니다.")
 
 def makeInsertion(job):
 

@@ -107,7 +107,7 @@ if __name__ == "__main__":
         try:
             for i in selected:
                 print(i)
-                dr.print_job_schedule(hof[i - 1], start, end, standard_in_datetime, "optimized", i)
+                dr.print_job_schedule(hof[i - 1].assignment, start, end, standard_in_datetime, "optimized", i, unassigned_list = hof[i - 1].unassigned)
             break
         except Exception as ex:
             print("an error occured! : ", ex)

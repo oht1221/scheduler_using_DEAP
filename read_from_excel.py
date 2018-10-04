@@ -22,7 +22,10 @@ read_CNCs('./장비정보.xlsx', CNCs)
 
 machines = {}
 new_job = None
+date_from = 0
+date_until = 0
 standard = 0
+num_unassigned = 0
 
 CNCs_2jaw = list(filter(lambda x: x.getShape() == 0, CNCs))
 CNCs_3jaw = list(filter(lambda x: x.getShape() == 1, CNCs))
@@ -35,23 +38,7 @@ CNCs_LOK_size_hex = list(filter(lambda x: x.getNumber() in LOK_HEX_CNCs, CNCs))
 root = Tk()
 
 
-def score(assignments):
-    TOTAL_DELAYED_JOBS_COUNT = 0
-    TOTAL_DELAYED_TIME = 0
 
-    for job in assignments:
-        components = job.getComponents()
-        last_component = components[-1]  # 마지막 공정이 끝난 시간
-        job_end_time = last_component.getEndDateTime()
-        diff = job.getDue() - (job_end_time + 60 * 60 * 24 * 5)  # 5일간 다른 공정
-
-        if diff < 0:
-            job.delayed()
-            TOTAL_DELAYED_JOBS_COUNT += 1
-            TOTAL_DELAYED_TIME += (-1) * diff
-            for comp in components:
-                comp.delayed()
-    return TOTAL_DELAYED_TIME
 
 def insert(CNC_list, insertion, due):
     selected_machines = dict()
@@ -59,7 +46,7 @@ def insert(CNC_list, insertion, due):
         selected_machines[float(c.getNumber())] = machines[float(c.getNumber())]
 
     diff_smallest = 99999999999999999
-    machines_number = 0
+
     best = None
     for num, machine in selected_machines.items():
         assignments = machine.getAssignments()
@@ -89,6 +76,7 @@ def insert(CNC_list, insertion, due):
             for comp in new_assignments[(position + step):]:
                 if not comp.isSetting():
                     diff += (-1) * min((comp.getJob()).getDue() - comp.getEndDateTime(), 0)
+
             if diff < diff_smallest:  # diff 더 작은 작업 배치로 바꿈
                 diff_smallest = diff
                 best = new_assignments
@@ -100,9 +88,6 @@ def insert(CNC_list, insertion, due):
             insertion_comp_start = assignments[position].getStartDateTime()
 
     if best is not None:
-        messagebox.showinfo("message", "새로운 스케줄을 출력하시겠습니까?")
-        machines[num].assignments = best
-        print_job_schedule()
         for comp in best:
             startTime = datetime.datetime.fromtimestamp(comp.getStartDateTime()).strftime('%Y-%m-%d %H:%M:%S')
             endTime = datetime.datetime.fromtimestamp(comp.getEndDateTime()).strftime('%Y-%m-%d %H:%M:%S')
@@ -112,8 +97,12 @@ def insert(CNC_list, insertion, due):
             else:
                 print("setting time", startTime, endTime)
             print("")
+        print("new job has been assigned to cnc# : %d"%cnc_num)
+        machines[cnc_num].assignments = best
+        return 1
+
     else:
-        messagebox.showerror("Warning!", "납기를 만족시킬 수 없습니다.")
+        return -1
 
 def makeInsertion(job):
 
@@ -133,32 +122,35 @@ def insertAndCheck(new_job):
     if len(insertion) <= 1:
         messagebox.showerror("Warning!", "해당 품번 코드의 사이클 타임 정보를 읽어올 수 없습니다.")
         return
-    new_assignments = None
+
+    status = 0
 
     if new_job.getLokFittingSize() == 1:
         if new_job.getType() == 0:
-            new_assignments = insert(CNCs_LOK_size_forging, insertion, new_job.getDue())
+            status = insert(CNCs_LOK_size_forging, insertion, new_job.getDue())
 
         elif new_job.getType() == 1:
-            new_assignments = insert(CNCs_LOK_size_hex, insertion, new_job.getDue())
+            status = insert(CNCs_LOK_size_hex, insertion, new_job.getDue())
 
     elif new_job.getType() == 0:
-        new_assignments = insert(CNCs_2jaw, insertion, new_job.getDue())
+        status = insert(CNCs_2jaw, insertion, new_job.getDue())
 
     elif new_job.getType() == 1:
-        new_assignments = insert(CNCs_3jaw, insertion, new_job.getDue())
+        status = insert(CNCs_3jaw, insertion, new_job.getDue())
 
     elif new_job.getType() == 2:
-        new_assignments = insert(CNCs_round, insertion, new_job.getDue())
+        status = insert(CNCs_round, insertion, new_job.getDue())
 
     elif new_job.getType() == 3:
-        new_assignments = insert(CNCs_square, insertion, new_job.getDue())
+        status = insert(CNCs_square, insertion, new_job.getDue())
 
     elif new_job.getType() == 4:
-        new_assignments = insert(CNCs_valve_pre, insertion, new_job.getDue())
+        status = insert(CNCs_valve_pre, insertion, new_job.getDue())
 
     else:
         print("job type error!")
+
+    return status
 
 
 def readFile():
@@ -171,7 +163,74 @@ def readFile():
 
     messagebox.showinfo("message", "파일 읽기 완료!")
 
-def inputVariables():
+def print_new_schedule(assignment, added):
+    output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
+    output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
+    modified = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;')
+    color = modified
+
+    worksheet = output.add_sheet("비고")
+    worksheet.write(0, 0, "기준 시간")
+    worksheet.write(0, 1, standard)
+    worksheet.col(0).width = 256 * 15
+
+    worksheet.write(1, 0, "date_from")
+    worksheet.write(1, 1, date_from)
+    worksheet.col(1).width = 256 * 15
+
+    worksheet.write(2, 0, "date_until")
+    worksheet.write(2, 1, date_until)
+    worksheet.col(2).width = 256 * 15
+
+    worksheet.write(3, 0, "배정된 작업 수 ")
+    worksheet.write(3, 1, len(assignment))
+    worksheet.col(3).width = 1024 * 15
+
+    worksheet.write(4, 0, "배정되지 않은 작업 수")
+    try:
+        worksheet.write(4, 1, num_unassigned)
+    except Exception:
+        pass
+
+    worksheet.col(4).width = 1024 * 15
+
+    worksheet.write(5, 0, "cycle time 정보 부족")
+
+    worksheet.col(5).width = 512 * 15
+
+    for key, machine in assignment.items():
+        row = 0
+        worksheet = output.add_sheet(str(key))  # 시트 생성
+        worksheet.write(row, 0, "작업지시서 번호")
+        worksheet.col(0).width = 256 * 15
+        worksheet.write(row, 1, "공정")
+        worksheet.col(1).width = 256 * 5
+        worksheet.write(row, 2, "품번")
+        worksheet.col(2).width = 256 * 20
+        worksheet.write(row, 3, "구분")
+        worksheet.col(3).width = 256 * 15
+        worksheet.write(row, 4, "LOK")
+        worksheet.col(4).width = 256 * 5
+        worksheet.write(row, 5, "시작")
+        worksheet.col(5).width = 256 * 24
+        worksheet.write(row, 6, "종료")
+        worksheet.col(6).width = 256 * 24
+        worksheet.write(row, 7, "납기")
+        worksheet.col(7).width = 256 * 24
+        worksheet.write(row, 8, "Qty")
+        worksheet.col(8).width = 256 * 24
+        # worksheet.write(row, 5, str(indexOfMin))
+        row += 1
+        for comp in machine.getAssignments():
+            print_out_unit(comp, row, worksheet, color)
+            row += 1
+    file_name = (root.filename.split('.')[0] + "_added_" + added) + ".xls"
+    output.save(file_name)
+    return
+
+
+def inputVariablesAndInsertJob():
+
     global standard
     if standard == 0:
         messagebox.showerror("Warning!", "스케줄을 먼저 선택하셔야합니다.")
@@ -183,7 +242,7 @@ def inputVariables():
         (int(due[0:4]), int(due[4:6]), int(due[6:8]), 12, 0, 0, 0, 0, 0))  # 정오 기준
     due_date_seconds = int(due_date_seconds)
 
-    goodNo = input_goodNo.get()
+    #goodNo = input_goodNo.get()
     goodCd = input_goodCd.get()
     qty = int(input_qty.get())
     cursor = AccessDB()
@@ -195,16 +254,32 @@ def inputVariables():
     new_job = Job(workno=workno, goodCd=goodCd, type=gubun, quantity=qty, time=cycle_time,
                               due=due_date_seconds)
 
-    insertAndCheck(new_job)
+    status = insertAndCheck(new_job)
+
+    if status == -1:
+        messagebox.showerror("Warning!", "납기를 만족시킬 수 없습니다.")
+    if status == 1:
+        print_new_schedule(machines, new_job.getWorkno())
 
 
 
 def read_schedule(input):
     workbook = xlrd.open_workbook(input)
     worksheet = workbook.sheet_by_name('비고')
-    row = worksheet.row_values(0)
+
     global standard
+    global num_unassigned
+    global date_from
+    global date_until
+    row = worksheet.row_values(0)
     standard = row[1]
+    row = worksheet.row_values(1)
+    date_from = row[1]
+    row = worksheet.row_values(2)
+    date_until = row[1]
+    row = worksheet.row_values(4)
+    num_unassigned = row[1]
+
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
 
@@ -215,8 +290,6 @@ def read_schedule(input):
     while worksheet is not None:
         M = Machine()
         machines[float(worksheet.name)] = M
-        print(float(worksheet.name))
-        assignment = M.getAssignments()
         n_row = worksheet.nrows
 
         for r in range(n_row - 1):
@@ -276,11 +349,8 @@ def read_schedule(input):
     print("파일 입력 완료!")
 
 btn1 = Button(root, text = "스케줄 선택", command = readFile)
-btn1.grid(row = 1)
+btn2 = Button(root, text = "완료", command = inputVariablesAndInsertJob)
 
-btn2 = Button(root, text = "완료", command = inputVariables)
-btn2.bind(inputVariables)
-btn2.grid(row = 9)
 
 workno = StringVar()
 due = StringVar()
@@ -289,36 +359,43 @@ qty = IntVar()
 
 input_workno = Entry(root, width = 20, text = "작업 지시서 번호")
 input_due = Entry(root, width = 20, text = "납기(YYYYMMDD)")
-input_goodNo = Entry(root, width = 20, text = "품번(숫자, 문자)")
+#input_goodNo = Entry(root, width = 20, text = "품번(숫자, 문자)")
 input_goodCd = Entry(root, width = 20, text = "품번 코드(숫자)")
 input_qty = Entry(root, width = 20, text = "수량")
 input_gubun = Entry(root, width = 20, text = "타입구분")
 
 lbl_workno = Label(root,  width = 15, text = "작업 지시서 번호")
 lbl_due = Label(root, width = 15, text = "납기(YYYYMMDD)")
-lbl_goodNo = Label(root, width = 15, text = "품번(숫자, 문자)")
+#lbl_goodNo = Label(root, width = 15, text = "품번(숫자, 문자)")
 lbl_goodCd = Label(root, width = 15, text = "품번 코드(숫자)")
 lbl_qty = Label(root, width = 15, text = "수량")
 lbl_gubun = Label(root, width = 15, text = "타입구분")
 lbl_show_state = Label(root)
 
 
-input_workno.grid(row = 2, column = 2)
-input_due.grid(row = 3, column = 2)
-input_goodNo.grid(row = 4, column = 2)
-input_goodCd.grid(row = 5, column = 2)
-input_qty.grid(row = 6, column = 2)
-input_gubun.grid(row = 7, column = 2)
-
+btn1.grid(row = 1)
 
 lbl_workno.grid(row = 2, column = 1)
-lbl_due.grid(row = 3, column = 1)
-lbl_goodNo.grid(row = 4, column = 1)
-lbl_goodCd.grid(row = 5, column = 1)
-lbl_qty.grid(row = 6, column = 1)
-lbl_gubun.grid(row = 7, column = 1)
-lbl_show_state.grid(row = 8)
+input_workno.grid(row = 2, column = 2)
 
+lbl_due.grid(row = 3, column = 1)
+input_due.grid(row = 3, column = 2)
+
+#lbl_goodNo.grid(row = 4, column = 1)
+#input_goodNo.grid(row = 4, column = 2)
+
+lbl_goodCd.grid(row = 4, column = 1)
+input_goodCd.grid(row = 4, column = 2)
+
+lbl_qty.grid(row = 5, column = 1)
+input_qty.grid(row = 5, column = 2)
+
+lbl_gubun.grid(row = 6, column = 1)
+input_gubun.grid(row = 6, column = 2)
+
+lbl_show_state.grid(row = 7)
+
+btn2.grid(row = 8)
 
 root.mainloop()
 
@@ -363,3 +440,4 @@ output.save("./schedules/test.xls")
 
 #read_schedule(input)
 '''
+

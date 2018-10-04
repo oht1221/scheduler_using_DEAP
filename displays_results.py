@@ -22,8 +22,8 @@ def print_job_schedule(assignment, start, end, standard, schedule_type, rank = 0
     worksheet.write(2, 1, end)
     worksheet.col(2).width = 256 * 15
 
-    worksheet.write(3, 0, "배정된 작업 수 ")
-    worksheet.write(3, 1, len(assigned))
+    worksheet.write(3, 0, "총 작업 수 ")
+    worksheet.write(3, 1, )
     worksheet.col(3).width = 1024 * 15
 
     worksheet.write(4, 0, "배정되지 않은 작업 수")

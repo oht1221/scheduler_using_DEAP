@@ -1,5 +1,4 @@
 
-
 import random
 import numpy as np
 
@@ -107,9 +106,9 @@ if __name__ == "__main__":
         try:
             for i in selected:
                 print(i)
-                dr.print_job_schedule(hof[i - 1].assignment, start, end, standard_in_datetime, "optimized", i, unassigned_list = hof[i - 1].unassigned)
+                dr.print_job_schedule(assignment = hof[i - 1].assignment, start = start, end = end, standard = standard_in_datetime,
+                                      total_number = len(hof[i - 1]), total_number_unassgiend= len(hof[i -1].unassigend), schedule_type = "optimized", rank = i)
             break
         except Exception as ex:
             print("an error occured! : ", ex)
             continue
-

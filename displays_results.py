@@ -1,11 +1,11 @@
 import xlwt
 import datetime
 
-def print_job_schedule(assignment, start, end, standard, schedule_type, rank = 0, unassigned_list = None, added = None):
+def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
     assigned = assignment
-    unassigned = unassigned_list
+
     modified = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;')
     color = modified
 
@@ -23,12 +23,12 @@ def print_job_schedule(assignment, start, end, standard, schedule_type, rank = 0
     worksheet.col(2).width = 256 * 15
 
     worksheet.write(3, 0, "총 작업 수 ")
-    worksheet.write(3, 1, )
+    worksheet.write(3, 1, total_number)
     worksheet.col(3).width = 1024 * 15
 
     worksheet.write(4, 0, "배정되지 않은 작업 수")
     try:
-        worksheet.write(4, 1, len(unassigned))
+        worksheet.write(4, 1, total_number_unassgiend)
     except Exception:
         pass
 
@@ -65,10 +65,8 @@ def print_job_schedule(assignment, start, end, standard, schedule_type, rank = 0
             print_out_unit(comp, row, worksheet, color)
             row += 1
 
-    if added is None:
-        output.save("./schedules/schedule_%s_%s_%s_%s_%d.xls" % (schedule_type, start, end, standard, rank))
+    output.save("./schedules/schedule_%s_%s_%s_%s_%d.xls" % (schedule_type, start, end, standard, rank))
 
-    output.save("./schedules/schedule_%s_%s_%s_%s_%d_added_%s.xls" % (schedule_type, start, end, standard, rank, added))
     return
 
 def print_out_unit(comp, row, worksheet, color):

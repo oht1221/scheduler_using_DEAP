@@ -75,8 +75,8 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     LAST_JOB_EXECUTION = max([m.getTimeLeft() for m in interpreted.values()])
 
     individual.fitness.values = [int(TOTAL_DELAYED_JOBS_COUNT),
-                                 int((TOTAL_DELAYED_TIME) / (60 * 30)),
-                                 int((LAST_JOB_EXECUTION) / (60 * 30))]
+                                 int((TOTAL_DELAYED_TIME) / (60 * 30)), #30분 단위로 수치화
+                                 int((LAST_JOB_EXECUTION) / (60 * 30))] #30분 단위로 수치화
 
     individual.assignment = interpreted
     individual.unassigned = unassigned
@@ -84,6 +84,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     print(individual.fitness.values)
 
     return individual.fitness.values
+
 
 def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
     #for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
@@ -131,70 +132,6 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
 
     return machines, unAssigned
 
-def interpret2(machines, indiv, CNCs, job_pool):
-    for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
-        v.clear()
-    unAssigned = []
-    '''for cnc in CNCs:
-        machines[cnc.getNumber()] = list()'''
-    forging = list()
-    hex = list()
-    round = list()
-    square = list()
-    valvePre = list()
-    splitPool(indiv, forging, hex, round, square, valvePre, job_pool)
-    # normPool.sort(key=lambda x: x.getDue())
-    # hexPool.sort(key=lambda x: x.getDue())
-    # normPool = permutations(normPool,len(normPool))
-    # hexPool = permutations(hexPool,len(hexPool))
-    normCNCs = list(filter(lambda x: x.getShape() == 0, CNCs))
-    hexCNCs = list(filter(lambda x: x.getShape() == 1, CNCs))
-    # sortedNormPool = sorted(normPool, key = lambda j : j.getDue())
-    # sortedHexPool = sorted(hexPool, key = lambda j: j.getDue())
-
-    for i, j in enumerate(forging):
-
-        selected_CNCs = []
-        for c in normCNCs:
-            if c.getGround() <= j.getSize() <= c.getCeiling():  # size 맞는 CNC는 모두 찾음
-                selected_CNCs.append(c)
-
-        timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
-        if len(timeLefts) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
-            unAssigned.append(j)
-            continue
-        minValue = min(timeLefts)
-        minIndex = timeLefts.index(minValue)
-        cnc = selected_CNCs[minIndex]
-        (machines[cnc.getNumber()]).append(j)
-        j.assignedTo(cnc)
-
-
-    for i, j in enumerate(hex):
-
-        selected_CNCs = []
-        for c in hexCNCs:
-            if (c.getGround() <= j.getSize() <= c.getCeiling()):  # size 맞는 CNC는 모두 찾음
-                selected_CNCs.append(c)
-
-        timeLefts = [sum([j.getTime() for j in machines[c.getNumber()]]) for c in selected_CNCs]
-        if len(timeLefts) <= 0:  # 조건에 맞는 CNC가 하나도 없으면
-            unAssigned.append(j)
-            continue
-        minValue = min(timeLefts)
-        minIndex = timeLefts.index(minValue)
-        cnc = selected_CNCs[minIndex]
-        (machines[cnc.getNumber()]).append(j)
-        j.assignedTo(cnc)
-
-    interpreted = {}
-    for k, v in machines.items():
-        interpreted[k] = []
-        for comp in v:
-            new = unit(comp)
-            interpreted[k].append(new)
-
-    return interpreted
 
 def evaluate(individual, normalization, avgs, params, c = None):
     print(individual.metrics)
@@ -300,4 +237,3 @@ def removesTheUnassigned(indiv, unassinged):
         indiv.pop(idx)
 
     return unassinged
-

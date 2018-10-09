@@ -8,7 +8,7 @@ from deap import tools, benchmarks, base, creator, algorithms
 import random
 
 import genetic_operators
-from scoop import futures
+
 import time
 from evaluation import pre_evaluate
 from preprocessing import make_job_pool, read_CNCs
@@ -30,6 +30,7 @@ LOK_HEX_CNCs = [8, 9, 11, 12, 13]
 creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
 creator.create("individual", list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
                unassigned=list)
+
 
 if __name__ == "__main__":
 
@@ -56,7 +57,6 @@ if __name__ == "__main__":
     toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
     toolbox.register("select", tools.selNSGA2)
     #toolbox.register("map", futures.map)
-    toolbox.register("map", futures.map)
 
     start_point = time.time()
 

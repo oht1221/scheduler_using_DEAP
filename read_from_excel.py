@@ -26,6 +26,7 @@ date_from = 0
 date_until = 0
 standard = 0
 num_unassigned = 0
+num_assigned = 0
 
 CNCs_2jaw = list(filter(lambda x: x.getShape() == 0, CNCs))
 CNCs_3jaw = list(filter(lambda x: x.getShape() == 1, CNCs))
@@ -163,7 +164,7 @@ def readFile():
 
     messagebox.showinfo("message", "파일 읽기 완료!")
 
-def print_new_schedule(assignment, added):
+def print_new_schedule(assignment, total_number, total_number_unassgiend, added):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
     modified = xlwt.easyxf('pattern: pattern solid, fore_colour yellow;')
@@ -183,7 +184,7 @@ def print_new_schedule(assignment, added):
     worksheet.col(2).width = 256 * 15
 
     worksheet.write(3, 0, "배정된 작업 수 ")
-    worksheet.write(3, 1, len(assignment))
+    worksheet.write(3, 1, num_assigned + 1)
     worksheet.col(3).width = 1024 * 15
 
     worksheet.write(4, 0, "배정되지 않은 작업 수")
@@ -271,12 +272,16 @@ def read_schedule(input):
     global num_unassigned
     global date_from
     global date_until
+    global num_assigned
+
     row = worksheet.row_values(0)
     standard = row[1]
     row = worksheet.row_values(1)
     date_from = row[1]
     row = worksheet.row_values(2)
     date_until = row[1]
+    row = worksheet.row_values(4)
+    num_assigned = row[1]
     row = worksheet.row_values(4)
     num_unassigned = row[1]
 

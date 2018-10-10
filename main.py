@@ -6,7 +6,6 @@ import re
 
 from deap import tools, benchmarks, base, creator, algorithms
 import random
-
 import genetic_operators
 
 import time
@@ -16,7 +15,7 @@ import displays_results as dr
 
 toolbox = base.Toolbox()
 CNCs = []
-NGEN = 1000
+NGEN = 0
 POP_SIZE = MU = 10
 MUTPB = 0.4
 LAMBDA = 20
@@ -27,7 +26,7 @@ LOK_HEX_CNCs = [8, 9, 11, 12, 13]
 
 #start = sys.argv[1]
 
-creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
+creator.create("FitnessMul", base.Fitness, weights=(-1.5, -1.0, -1.0))
 creator.create("individual", list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
                unassigned=list)
 
@@ -56,7 +55,6 @@ if __name__ == "__main__":
     toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
     toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
     toolbox.register("select", tools.selNSGA2)
-    #toolbox.register("map", futures.map)
 
     start_point = time.time()
 
@@ -73,12 +71,10 @@ if __name__ == "__main__":
 
     pop = toolbox.population(n=POP_SIZE)
 
-
     NGEN = int(input("# of gen: "))
 
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu=MU, lambda_=LAMBDA, cxpb=CXPB,
                                        mutpb=MUTPB, ngen=NGEN, stats=None, halloffame=hof, verbose=None)
-
 
     print("------------------------------------------Hall of fame------------------------------------------------")
     for i in range(len(hof)):

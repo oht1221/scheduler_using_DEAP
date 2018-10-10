@@ -260,7 +260,7 @@ def inputVariablesAndInsertJob():
     if status == -1:
         messagebox.showerror("Warning!", "납기를 만족시킬 수 없습니다.")
     if status == 1:
-        print_new_schedule(machines, new_job.getWorkno())
+        print_new_schedule(machines, num_assigned, num_unassigned, new_job.getWorkno())
 
 
 
@@ -280,7 +280,7 @@ def read_schedule(input):
     date_from = row[1]
     row = worksheet.row_values(2)
     date_until = row[1]
-    row = worksheet.row_values(4)
+    row = worksheet.row_values(3)
     num_assigned = row[1]
     row = worksheet.row_values(4)
     num_unassigned = row[1]

@@ -42,8 +42,6 @@ def refer_individual(indiv, job_pool):
 
     return indiv_ref
 
-
-
 def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
                  LOK_hex_CNCs, individual):
 
@@ -53,7 +51,6 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
 
     indiv_ref = refer_individual(individual, job_pool)
     interpreted, unassigned = interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
-
     removesTheUnassigned(indiv_ref, unassigned)
 
     TOTAL_DELAYED_JOBS_COUNT = 0
@@ -74,28 +71,36 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
 
     LAST_JOB_EXECUTION = max([m.getTimeLeft() for m in interpreted.values()])
 
-    individual.fitness.values = [int(TOTAL_DELAYED_JOBS_COUNT),
-                                 int((TOTAL_DELAYED_TIME) / (60 * 30)), #30분 단위로 수치화
-                                 int((LAST_JOB_EXECUTION) / (60 * 30))] #30분 단위로 수치화
+    raw  = [int(TOTAL_DELAYED_JOBS_COUNT),
+                int(TOTAL_DELAYED_TIME), #30분 단위로 수치화
+                int(LAST_JOB_EXECUTION)] #30분 단위로 수치화
+
+    fitnesses = [int(TOTAL_DELAYED_JOBS_COUNT),
+                int((TOTAL_DELAYED_TIME) / (60 * 60 * 3)), #30분 단위로 수치화
+                int((LAST_JOB_EXECUTION) / (60 * 30 * 3))] #30분 단위로 수치화
 
     individual.assignment = interpreted
     individual.unassigned = unassigned
+    individual.raw = raw
+    '''for j in unassigned:
+        print(j.getWorkno())
+    '''
+    print(fitnesses)
 
-    print(individual.fitness.values)
+    return fitnesses
 
-    return individual.fitness.values
 
 def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
     #for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
      #   v.clear()
     unAssigned = []
-    CNCs_2jaw = list(filter(lambda x: x.getShape() == 0, CNCs))
-    CNCs_3jaw = list(filter(lambda x: x.getShape() == 1, CNCs))
-    CNCs_round = list(filter(lambda  x : (x.getShape() == 1 and not (x.getNote() == "코렛")), CNCs))
-    CNCs_square = list(filter(lambda x : x.getShape() == 0, CNCs))
-    CNCs_valve_pre = list(filter(lambda x : x.getNumber() in valve_pre_CNCs, CNCs))
-    CNCs_LOK_size_forging = list(filter(lambda x : x.getNumber() in LOK_forging_CNCs, CNCs))
-    CNCs_LOK_size_hex = list(filter(lambda x : x.getNumber() in LOK_hex_CNCs, CNCs))
+    CNCs_2jaw = tuple(filter(lambda x: x.getShape() == 0, CNCs))
+    CNCs_3jaw = tuple(filter(lambda x: x.getShape() == 1, CNCs))
+    CNCs_round = tuple(filter(lambda  x : (x.getShape() == 1 and not (x.getNote() == "코렛")), CNCs))
+    CNCs_square = tuple(filter(lambda x : x.getShape() == 0, CNCs))
+    CNCs_valve_pre = tuple(filter(lambda x : x.getNumber() in valve_pre_CNCs, CNCs))
+    CNCs_LOK_size_forging = tuple(filter(lambda x : x.getNumber() in LOK_forging_CNCs, CNCs))
+    CNCs_LOK_size_hex = tuple(filter(lambda x : x.getNumber() in LOK_hex_CNCs, CNCs))
 
 
     for i, j in enumerate(indiv_ref): #차후에 component단위로 배정하는 것으로 변경해야함

@@ -9,16 +9,19 @@ import displays_results as dr
 import job
 import copy
 
+VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
+LOK_FORGING_CNCs = {10, 15}
+LOK_HEX_CNCs = {8, 9, 11, 12, 13}
 
 if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
     start = str(input("delivery date from: "))
-    end = str(input("delivery date until: "))
+    end = "20999999"
 
     IND_SIZE = TOTAL_NUMBER_OF_THE_POOL = make_job_pool(JOB_POOL, start, end)
 
-    read_CNCs('./hansun2.xlsx', CNCs)
+    read_CNCs('./장비정보.xlsx', CNCs)
 
     machines = {}
     for cnc in CNCs:
@@ -38,13 +41,15 @@ if __name__ == "__main__":
 
 
     indiv = toolbox.individual()
-    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (-1) * JOB_POOL[job_number].getTime()), reverse = False)
-    for j in indiv:
+    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (1) * JOB_POOL[job_number].getTime()), reverse = False)
+    '''for j in indiv:
         print(JOB_POOL[j].getDue())
         print(JOB_POOL[j].getTime())
+    '''
+
+    pre_evaluate(standard, CNCs, JOB_POOL, VALVE_PRE_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, indiv)
 
 
-    pre_evaluate(standard, machines, CNCs, JOB_POOL, indiv)
 
     print(indiv.fitness.values)
 

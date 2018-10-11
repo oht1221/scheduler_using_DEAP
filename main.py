@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 dr.print_job_schedule(assignment = hof[i - 1].assignment, start = start, end = end,
                                       standard = standard_in_datetime, total_number = len(hof[i - 1]),
                                       total_number_unassgiend= len(hof[i -1].unassigned),
-                                      schedule_type = "optimized", rank = i, endsAt = , numDelayed = , )
+                                      schedule_type = "optimized", rank = i, endsAt = standard + hof[i - 1].raw[2], numDelayed =  hof[i - 1].raw[0])
             break
         except Exception as ex:
             print("an error occured! : ", ex)

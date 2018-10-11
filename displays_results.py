@@ -1,7 +1,7 @@
 import xlwt
 import datetime
 
-def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, rank = 0):
+def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, endsAt, numDelayed, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
     assigned = assignment

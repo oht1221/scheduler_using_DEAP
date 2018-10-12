@@ -15,14 +15,14 @@ import displays_results as dr
 toolbox = base.Toolbox()
 CNCs = []
 NGEN = 0
-POP_SIZE = MU = 5
+POP_SIZE = MU = 10
 LAMBDA = 20
-MUTPB = 0.5
-CXPB = 0.5
+MUTPB = 0.4
+CXPB = 0.6
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
-WEIGHTS = (-2.0, -1.5, -1.0)
+WEIGHTS = (-2.0, -1.0, -1.0)
 
 
 creator.create("FitnessMul", base.Fitness, weights=WEIGHTS)

@@ -27,16 +27,20 @@ def print_job_schedule(assignment, start, end, standard, total_number, total_num
     worksheet.col(3).width = 1024 * 15
 
     worksheet.write(4, 0, "배정되지 않은 작업 수")
-    try:
-        worksheet.write(4, 1, total_number_unassgiend)
-    except Exception:
-        pass
-
+    worksheet.write(4, 1, total_number_unassgiend)
     worksheet.col(4).width = 1024 * 15
 
-    worksheet.write(5, 0, "cycle time 정보 부족")
+    worksheet.write(5, 0, "종료 시간")
+    worksheet.write(5, 1, endsAt)
+    worksheet.col(5).width = 1024 * 15
 
-    worksheet.col(5).width = 512 * 15
+    worksheet.write(6, 0, "납기 불충족 작업 수")
+    worksheet.write(6, 1, numDelayed)
+    worksheet.col(6).width = 1024 * 15
+
+    worksheet.write(7, 0, "cycle time 정보 부족")
+    worksheet.write(7, 1, numDelayed)
+    worksheet.col(7).width = 512 * 15
 
     for key, machine in assigned.items():
         row = 0

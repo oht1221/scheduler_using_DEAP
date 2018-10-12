@@ -15,8 +15,8 @@ import displays_results as dr
 toolbox = base.Toolbox()
 CNCs = []
 NGEN = 0
-POP_SIZE = MU = 10
-LAMBDA = 20
+POP_SIZE = MU = 20
+LAMBDA = 50
 MUTPB = 0.4
 CXPB = 0.6
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}

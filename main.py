@@ -15,14 +15,14 @@ import displays_results as dr
 toolbox = base.Toolbox()
 CNCs = []
 NGEN = 0
-POP_SIZE = MU = 20
-LAMBDA = 50
-MUTPB = 0.4
-CXPB = 0.6
+POP_SIZE = MU = 25
+LAMBDA = 75
+MUTPB = 0.5
+CXPB = 0.5
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
-WEIGHTS = (-2.0, -1.0, -1.0)
+WEIGHTS = (-2.0, -1.5, -1.0)
 
 
 creator.create("FitnessMul", base.Fitness, weights=WEIGHTS)
@@ -53,7 +53,7 @@ toolbox.register("select", tools.selNSGA2)
 
 if __name__ == "__main__":
 
-    start_point = time.time()
+
 
     standard = input("schedule starts on : ")
     standard_in_datetime = standard
@@ -68,18 +68,19 @@ if __name__ == "__main__":
 
     NGEN = int(input("# of gen: "))
 
+    start_point = time.time()
+
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu=MU, lambda_=LAMBDA, cxpb=CXPB,
                                        mutpb=MUTPB, ngen=NGEN, stats=None, halloffame=hof, verbose=None)
+
+    m, s = divmod((time.time() - start_point), 60)
+    h, m = divmod(m, 60)
 
     print("------------------------------------------Hall of fame------------------------------------------------")
     for i in range(len(hof)):
         print(i + 1, hof[i].fitness.values , end = " ")
         print(i + 1, len(hof[i].assignment))
     print("------------------------------------------Hall of fame------------------------------------------------")
-
-    m, s = divmod((time.time() - start_point), 60)
-    h, m = divmod(m, 60)
-
 
     print("NGEN : %d\nMu : %d\nLambda : %d\nMUTPB : %f\nCXPB : %f\n" % (NGEN, MU, LAMBDA, MUTPB, CXPB))
     print("Weights : ", WEIGHTS)
@@ -97,7 +98,8 @@ if __name__ == "__main__":
                 dr.print_job_schedule(assignment = hof[i - 1].assignment, start = start, end = end,
                                       standard = standard_in_datetime, total_number = len(hof[i - 1]),
                                       total_number_unassgiend= len(hof[i -1].unassigned),
-                                      schedule_type = "optimized", rank = i, endsAt = standard + hof[i - 1].raw[2], numDelayed =  hof[i - 1].raw[0])
+                                      schedule_type = "optimized", endsAt = standard + hof[i - 1].raw[2], numDelayed =  hof[i - 1].raw[0],
+                                      mu = MU, Lambda = LAMBDA, cx = CXPB, mut = MUTPB, rank = i)
             break
         except Exception as ex:
             print("an error occured! : ", ex)

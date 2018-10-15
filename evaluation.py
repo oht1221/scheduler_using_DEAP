@@ -76,8 +76,8 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
                 int(LAST_JOB_EXECUTION)] #30분 단위로 수치화
 
     fitnesses = [int(TOTAL_DELAYED_JOBS_COUNT),
-                int((TOTAL_DELAYED_TIME) / (60 * 60 * 3)), #30분 단위로 수치화
-                int((LAST_JOB_EXECUTION) / (60 * 30 * 3))] #30분 단위로 수치화
+                int((TOTAL_DELAYED_TIME) / (60 * 60 * 2)), #30분 단위로 수치화
+                int((LAST_JOB_EXECUTION) / (60 * 30 * 2))] #30분 단위로 수치화
 
     individual.assignment = interpreted
     individual.unassigned = unassigned

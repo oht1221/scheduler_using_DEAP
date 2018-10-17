@@ -15,14 +15,14 @@ import displays_results as dr
 toolbox = base.Toolbox()
 CNCs = []
 NGEN = 0
-POP_SIZE = MU = 25
-LAMBDA = 75
-MUTPB = 0.5
-CXPB = 0.5
+POP_SIZE = MU = 20
+LAMBDA = 80
+MUTPB = 0.4
+CXPB = 0.6
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
-WEIGHTS = (-2.0, -1.5, -1.0)
+WEIGHTS = (-1.0, -2.0, -1.0)
 
 
 creator.create("FitnessMul", base.Fitness, weights=WEIGHTS)
@@ -69,7 +69,6 @@ if __name__ == "__main__":
     NGEN = int(input("# of gen: "))
 
     start_point = time.time()
-
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu=MU, lambda_=LAMBDA, cxpb=CXPB,
                                        mutpb=MUTPB, ngen=NGEN, stats=None, halloffame=hof, verbose=None)
 
@@ -96,8 +95,7 @@ if __name__ == "__main__":
             for i in selected:
                 print(i)
                 dr.print_job_schedule(assignment = hof[i - 1].assignment, start = start, end = end,
-                                      standard = standard_in_datetime, total_number = len(hof[i - 1]),
-                                      total_number_unassgiend= len(hof[i -1].unassigned),
+total_number_unassgiend= len(hof[i -1].unassigned),
                                       schedule_type = "optimized", endsAt = standard + hof[i - 1].raw[2], numDelayed =  hof[i - 1].raw[0],
                                       mu = MU, Lambda = LAMBDA, cx = CXPB, mut = MUTPB, rank = i)
             break

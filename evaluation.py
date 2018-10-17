@@ -166,13 +166,13 @@ def assign(job, CNCs, machines, unAssigned, standard):
     timeLefts = [(machines[c.getNumber()]).getTimeLeft() for c in selected_CNCs]
     minValue = min(timeLefts)
     minIndex = timeLefts.index(minValue)
-    cnc = selected_CNCs[minIndex]
+    cnc = selected_CNCs[minIndex] # 선택된 cnc들 중 가장 남은시간이 적은 cnc
     cnc_number = cnc.getNumber()
     selected_machine = machines[cnc_number]
     #timeLeft = selected_machine.getTimeLeft()
 
     if cnc_number in [39, 40] and job.getLokFitting(): #LOK이 39, 40에 걸린 경우 : 2차는 41, 42에서
-        if selected_machine.getTimeLeft() is not 0:  # setting time 설정
+        if selected_machine.getTimeLeft() != 0:  # setting time 설정
             assignSettingTimeComponent(standard, selected_machine, cnc)
 
         setTimes(components[0], standard, selected_machine)
@@ -184,7 +184,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
         try:
             for i in range(len(components) - 1):
-                if selected_machine.getTimeLeft() is not 0:  # setting time 설정
+                if selected_machine.getTimeLeft() != 0:  # setting time 설정
                     assignSettingTimeComponent(standard, selected_machine, cnc)
 
                 setTimes(components[i + 1], standard, selected_machine)

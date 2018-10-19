@@ -95,6 +95,7 @@ def make_job_pool(job_pool, start, end):
         GoodCd = row[3]
         cycle_time = []
         rawMaterialSize = float(row[8])
+        no_cycle_time = []
         '''try:
             spec = float((row[8].split('-'))[0])  # 숫자(-문자) 형식 아닌 spec이 나오면 무시
         except ValueError:
@@ -118,6 +119,7 @@ def make_job_pool(job_pool, start, end):
 
         if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
             row = cursor1.fetchone()
+            no_cycle_time.append(GoodCd)
             continue
 
         newJob = Job(workno=workno, goodNo=GoodNo, goodCd = GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
@@ -129,7 +131,7 @@ def make_job_pool(job_pool, start, end):
 
     total_number = len(job_pool)
     print("the total # of jobs: %d"%(total_number))
-    return total_number
+    return total_number, no_cycle_time
 
 
 def search_cycle_time(cursor, cycle_time, GoodCd):

@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
 
     indiv = toolbox.individual()
-    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (-1) * JOB_POOL[job_number].getTime()), reverse = False)
+    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (1) * JOB_POOL[job_number].getTime()), reverse = False)
     '''for j in indiv:
         print(JOB_POOL[j].getDue())
         print(JOB_POOL[j].getTime())

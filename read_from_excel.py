@@ -1,6 +1,5 @@
-import xlrd, xlwt
-import datetime
-import sys
+import xlrd
+
 from tkinter import filedialog
 from tkinter import *
 from tkinter import messagebox

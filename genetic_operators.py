@@ -88,6 +88,31 @@ def order_crossover(start, end, ind1, ind2):
 
     return offspring1, offspring2
 
+def cycle_crossover(ind1, ind2):
+    cycle_1 = list()
+    cycle_2 = list()
+    idx = 0
+    while 1:
+        if ind2[idx] in cycle_1:
+            break
+        cycle_1.append(ind2[idx])
+        idx = ind2.index(ind1[idx])
+    if len([i for i in range(len(ind2)) if ind2[i] not in cycle_1]) != 0:
+        start = min([i for i in range(len(ind2)) if ind2[i] not in cycle_1])
+    else:
+        return ind1, ind2
+    idx = start
+    while 1:
+        if idx in cycle_2:
+            break
+        cycle_2.append(idx)
+        idx = ind2.index(ind1[idx])
+    for i in cycle_2:
+        temp = ind2[i]
+        ind2[i] = ind1[i]
+        ind1[i] = temp
+    return ind1, ind2
+
 def random_permutation():
     pool = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
     permutation = []

@@ -8,6 +8,8 @@ from itertools import permutations
 import time
 import copy
 
+
+
 def read_CNCs(input, CNCs):
     workbook = xlrd.open_workbook(input)
 
@@ -43,12 +45,35 @@ def read_CNCs(input, CNCs):
 
     return
 
-def make_job_pool(job_pool, start, end):
-    cursor1 = accessDB.AccessDB()
-    cursor2 = accessDB.AccessDB()
+def dbConnectionCheck():
+
+    while (1):
+        try:
+            database = input("database name : ")
+            username = input("user name : ")
+            password = input("password : ")
+            cursor_test = accessDB.AccessDB(database, username, password)
+
+        except Exception as e:
+
+            print(e)
+            print("데이터베이스 접속 실패! 로그인 정보를 다시 입력해주세요.")
+
+        else:
+            cursor_test.close()
+            print("데이터베이스 접속 성공! ")
+            break
+    return database, username, password
+
+def make_job_pool(job_pool, start, end, database, username, password):
+    cursor_job = accessDB.AccessDB(database, username, password)
+    cursor_cycletime = accessDB.AccessDB(database, username, password)
     deli_start = copy.deepcopy(start)
     deli_end = copy.deepcopy(end)
-    cursor1.execute("""
+    no_cycle_time = []
+    print("작업 지시서 정보 받아오는 중...")
+
+    cursor_job.execute("""
               select a.Workno, g.GoodNo, i.GoodNo as 'RawMaterialNo', g.GoodCd, i.GoodCd as 'RawMaterialCd',
             a.OrderQty, a.DeliveryDate, 
             --case when i.Class3 = '061038' then '단조' else 'HEX' end as Gubun,
@@ -81,7 +106,8 @@ def make_job_pool(job_pool, start, end):
      order by i.Class3, i.GoodNo, i.Size
 
         """)
-    row = cursor1.fetchone()
+    row = cursor_job.fetchone()
+
     while row:
         workno = row[0]
         GoodNo = row[1]
@@ -95,7 +121,7 @@ def make_job_pool(job_pool, start, end):
         GoodCd = row[3]
         cycle_time = []
         rawMaterialSize = float(row[8])
-        no_cycle_time = []
+
         '''try:
             spec = float((row[8].split('-'))[0])  # 숫자(-문자) 형식 아닌 spec이 나오면 무시
         except ValueError:
@@ -115,11 +141,11 @@ def make_job_pool(job_pool, start, end):
         elif row[10] == 'N':
             LOKFITTINGSIZE = 0
 
-        search_cycle_time(cursor2, cycle_time, GoodCd)
+        search_cycle_time(cursor_cycletime, cycle_time, GoodCd)
 
         if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
-            row = cursor1.fetchone()
-            no_cycle_time.append(GoodCd)
+            row = cursor_job.fetchone()
+            no_cycle_time.append(workno)
             continue
 
         newJob = Job(workno=workno, goodNo=GoodNo, goodCd = GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
@@ -127,7 +153,7 @@ def make_job_pool(job_pool, start, end):
                      size=rawMaterialSize, LOKFITTING = LOKFITTING, LOKFITTINGSIZE = LOKFITTINGSIZE)
 
         job_pool.append(newJob)
-        row = cursor1.fetchone()
+        row = cursor_job.fetchone()
 
     total_number = len(job_pool)
     print("the total # of jobs: %d"%(total_number))
@@ -183,6 +209,110 @@ def search_cycle_time(cursor, cycle_time, GoodCd):
         pass
 
 
+def getLeftOver(database, username, password):
+    initial_times = list()
+    cursor = accessDB.AccessDB(database, username, password)
+    cursor.execute(
+    """
+    SET NOCOUNT ON;
+    declare @THse_CNC_Work_List table (
+        [Accunit] [char](3) NULL,
+    	[Factory] [char](3) NULL,
+  	    [Cnc] [char](6) NULL,
+    	[Workdate] [char](8) NULL,
+	    [Seq] [char](4) NULL,
+	    [Workno] [varchar](20) NULL,
+	    [Goodcd] [varchar](8) NULL,
+	    [Processcd] [char](2) NULL,
+	    [Prodqty] [numeric](18, 0) NULL,
+	    [Errqty] [numeric](18, 0) NULL,
+	    [Crepno] [char](5) NULL,
+	    [Credate] [smalldatetime] NULL,
+	    [Modpno] [char](5) NULL,
+	    [Moddate] [smalldatetime] NULL
+    ) 
+
+    insert @THse_CNC_Work_List
+    select a.Accunit, a.Factory, a.Cnc, a.Workdate, a.Seq, a.Workno, w.Goodcd, a.Processcd,
+           a.Prodqty, a.Errqty, a.Crepno, a.Credate, a.Modpno, a.Moddate
+    from THse_Cnc_Machine_Assignment a
+    left outer join ( select a.Cnc, a.Workdate, MAX(b.Seq) as Seq
+                      from
+                      (
+                          select a.Cnc, MAX(a.Workdate) as Workdate
+                          from THse_Cnc_Machine_Assignment a
+                          group by a.Cnc
+                      ) a 
+                      left outer join THse_Cnc_Machine_Assignment b on a.Cnc = b.Cnc and a.Workdate = b.Workdate
+                      group by a.Cnc, a.Workdate ) b on a.Cnc = b.Cnc and a.Workdate = b.Workdate and a.Seq = b.Seq
+    left outer join TWorkreport_Han_Eng w on a.Workno = w.Workno
+    where b.Cnc is not null
+    order by a.Cnc
+
+
+    select m.MinorNm as [장비명], a.Workno, a.Processcd, w.OrderQty as [작업지시수량], ISNULL(b.Prodqty,0) + ISNULL(b.Errqty,0) as [작업수량], ISNULL(c.Cycletime,0) as [C/T]
+    from @THse_CNC_Work_List a
+    left outer join (    select a.Workno, a.Processcd, SUM(a.Prodqty) as Prodqty, SUM(a.Errqty) as Errqty
+                         from TWorkReport_CNC a, @THse_CNC_Work_List b
+                         where a.Workdate > '20170101' and a.Workno = b.Workno and a.Processcd = b.Processcd
+                         group by a.Workno, a.Processcd    ) b on a.Workno = b.Workno and a.Processcd = b.Processcd
+    left outer join (    select ROW_NUMBER() over (partition by a.Goodcd, a.Processcd order by a.Workdate, a.Gubun desc) as _Rank,
+                                a.Goodcd, a.Processcd, a.Cycletime
+                         from TWorkReport_CNC a, @THse_CNC_Work_List b
+                         where a.Goodcd = b.Goodcd ) c on a.Goodcd = c.Goodcd and a.Processcd = c.Processcd and c._Rank = 1
+    left outer join TMinor m on a.Cnc = m.MinorCd and m.MinorCd like '293%'
+    left outer join TWorkreport_Han_Eng w on a.Workno = w.Workno
+    order by m.SortSeq
+     """)
+
+    row = cursor.fetchone()
+
+
+    while (row):
+        cncNo = row[0]
+        try:
+            cncNo = int((cncNo.split())[0])  # 숫자(-문자) 형식 아닌 spec이 나오면 무시
+        except ValueError:
+            row = cursor.fetchone()
+            continue
+
+        orderQty = row[3]
+        producedQty = row[4]
+        cycleTime = row[5]
+        leftQty = max(0, orderQty - producedQty)
+        leftover = int(leftQty * cycleTime)
+        initial_times.append(leftover)
+
+        '''
+        cycle_time = [0, 0, 0]
+        if processcd == 'P1':
+            cycle_time[0] = int(cycleTime)
+        elif processcd == 'P2':
+            cycle_time[1] = int(cycleTime)
+        elif processcd == 'P3':
+            cycle_time[2] = int(cycleTime)
+
+        goodCd = row[7]
+        workdate = row[8]
+
+        due_date = row[6]
+        due_date_seconds = time.mktime(
+            (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 12, 0, 0, 0, 0, 0))  # 정오 기준
+        due_date_seconds = int(due_date_seconds)
+
+        newJob = Job(workno=workNo, workdate=workdate, good_num=goodCd, time=cycle_time, quantity=Qty,
+                     due=due_date_seconds)
+        try:
+            (machines[cncNo]).append(newJob)
+        except KeyError:
+            row = cursor.fetchone()
+            print("CNC %d은 후가공 전용 " %(cncNo))
+            continue
+        '''
+        row = cursor.fetchone()
+    cursor.close()
+
+    return initial_times
 
 def schedule(CNCs, job_pool, machines):
     total_delayed_time = 0
@@ -282,6 +412,8 @@ def schedule(CNCs, job_pool, machines):
 
     msg = [total_delayed_time, total_delayed_jobs_count, last_job_execution, machines]
     return msg
+
+
 
 '''
 def assign(CNCs, job_pool, ready_pool, in_progress):  # CNC에 job들을 분배하는 함수

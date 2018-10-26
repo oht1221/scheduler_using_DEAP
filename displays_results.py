@@ -1,7 +1,7 @@
 import xlwt
 import datetime
 
-def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, endsAt, numDelayed,  mu, Lambda, cx, mut, rank = 0):
+def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, endsAt, numDelayed, no_cycle_time, mu, Lambda, cx, mut, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
     assigned = assignment
@@ -10,37 +10,44 @@ def print_job_schedule(assignment, start, end, standard, total_number, total_num
     color = modified
 
     worksheet = output.add_sheet("비고")
+    worksheet.col(0).width = 400 * 15
+    worksheet.col(1).width = 400 * 15
+    worksheet.col(2).width = 400 * 15
+    worksheet.col(3).width = 400 * 15
+    worksheet.col(4).width = 400 * 15
+    worksheet.col(5).width = 400 * 15
+    worksheet.col(6).width = 400 * 15
+    worksheet.col(7).width = 400 * 15
+
     worksheet.write(0, 0, "기준 시간")
     worksheet.write(0, 1, standard)
-    worksheet.col(0).width = 256 * 15
+
 
     worksheet.write(1, 0, "date_from")
     worksheet.write(1, 1, start)
-    worksheet.col(1).width = 256 * 15
+
 
     worksheet.write(2, 0, "date_until")
     worksheet.write(2, 1, end)
-    worksheet.col(2).width = 256 * 15
 
     worksheet.write(3, 0, "총 작업 수 ")
     worksheet.write(3, 1, total_number)
-    worksheet.col(3).width = 1024 * 15
 
-    worksheet.write(4, 0, "배정되지 않은 작업 수")
-    worksheet.write(4, 1, total_number_unassgiend)
-    worksheet.col(4).width = 1024 * 15
+    worksheet.write(4, 0, "배정되지 않은 작업")
+    for i in range(len(total_number_unassgiend)):
+        worksheet.write(4, 1 + i, total_number_unassgiend[i].getWorkno())
 
+    endsAt = datetime.datetime.fromtimestamp(endsAt).strftime('%Y-%m-%d %H:%M:%S')
     worksheet.write(5, 0, "종료 시간")
     worksheet.write(5, 1, endsAt)
-    worksheet.col(5).width = 1024 * 15
 
     worksheet.write(6, 0, "납기 불충족 작업 수")
     worksheet.write(6, 1, numDelayed)
-    worksheet.col(6).width = 1024 * 15
 
     worksheet.write(7, 0, "cycle time 정보 부족")
-    worksheet.write(7, 1, numDelayed)
-    worksheet.col(7).width = 512 * 15
+    for i in range(len(no_cycle_time)):
+        worksheet.write(7, 1 + i, no_cycle_time[i])
+        worksheet.col(i + 1).width = 400 * 15
 
     for key, machine in assigned.items():
         row = 0

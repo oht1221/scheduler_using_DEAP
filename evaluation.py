@@ -42,12 +42,15 @@ def refer_individual(indiv, job_pool):
 
     return indiv_ref
 
+
 def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
-                 LOK_hex_CNCs, individual):
+                 LOK_hex_CNCs, initial_times, individual):
 
     machines = {}
-    for cnc in CNCs:
-        machines[float(cnc.getNumber())] = Machine()
+    for i, cnc in enumerate(CNCs, 0):
+        cnc_number = int(cnc.getNumber())
+        machines[cnc_number] = Machine()
+        machines[cnc_number].plusInitialTime(initial_times[i])
 
     indiv_ref = refer_individual(individual, job_pool)
     interpreted, unassigned = interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)
@@ -87,8 +90,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     '''
     print(fitnesses)
 
-    return fitnesses
-
+    return [fitnesses, interpreted]
 
 def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
     #for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)
@@ -172,8 +174,8 @@ def assign(job, CNCs, machines, unAssigned, standard):
     #timeLeft = selected_machine.getTimeLeft()
 
     if cnc_number in [39, 40] and job.getLokFitting(): #LOK이 39, 40에 걸린 경우 : 2차는 41, 42에서
-        if selected_machine.getTimeLeft() != 0:  # setting time 설정
-            assignSettingTimeComponent(standard, selected_machine, cnc)
+        #if selected_machine.getTimeLeft() != 0:  # setting time 설정
+        assignSettingTimeComponent(standard, selected_machine, cnc)
 
         setTimes(components[0], standard, selected_machine)
         selected_machine.attach(components[0])
@@ -184,8 +186,8 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
         try:
             for i in range(len(components) - 1):
-                if selected_machine.getTimeLeft() != 0:  # setting time 설정
-                    assignSettingTimeComponent(standard, selected_machine, cnc)
+                #if selected_machine.getTimeLeft() != 0:  # setting time 설정
+                assignSettingTimeComponent(standard, selected_machine, cnc)
 
                 setTimes(components[i + 1], standard, selected_machine)
                 selected_machine.attach(components[i + 1])
@@ -196,8 +198,8 @@ def assign(job, CNCs, machines, unAssigned, standard):
 
     else:
         for comp in components: #comp1, comp2 연달아 배정(향 후 변경 가능)
-            if selected_machine.getTimeLeft() is not 0:  # setting time 설정
-                assignSettingTimeComponent(standard, selected_machine, cnc)
+            #if selected_machine.getTimeLeft() != 0:  # setting time 설정
+            assignSettingTimeComponent(standard, selected_machine, cnc)
             setTimes(comp, standard, selected_machine)
             (machines[cnc.getNumber()]).attach(comp)
             comp.assignedTo(cnc)
@@ -234,6 +236,9 @@ class Machine:
 
     def getAssignments(self):
         return self.assignments
+
+    def plusInitialTime(self, initial_time):
+        self.time_left += initial_time
 
 def removesTheUnassigned(indiv, unassinged):
     for u in unassinged:

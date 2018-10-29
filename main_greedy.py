@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     standard_in_datetime = standard
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
-        (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
+        (int(x[0:4]), int(x[4:6]), int(x[6:8]), 8, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
     creator.create("FitnessMul", base.Fitness, weights=(-2.0, -1.0, -1.0))
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
 
     indiv = toolbox.individual()
-    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (1) * JOB_POOL[job_number].getTime()), reverse = False)
+    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (-1) * JOB_POOL[job_number].getTime()), reverse = False)
     '''for j in indiv:
         print(JOB_POOL[j].getDue())
         print(JOB_POOL[j].getTime())

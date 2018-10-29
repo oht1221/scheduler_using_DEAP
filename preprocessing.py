@@ -116,7 +116,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
         due_date = row[6]
 
         due_date_seconds = time.mktime(
-            (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 12, 0, 0, 0, 0, 0))  # 정오 기준
+            (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 16, 0, 0, 0, 0, 0))  # 오후4시 기준
         due_date_seconds = int(due_date_seconds)
         GoodCd = row[3]
         cycle_time = []

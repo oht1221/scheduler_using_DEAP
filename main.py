@@ -5,29 +5,28 @@ import re
 from deap import tools, benchmarks, base, creator, algorithms
 import random
 import genetic_operators
-import multiprocessing as mp
+#import multiprocessing as mp
 import time
 from evaluation import pre_evaluate
 import preprocessing as pp
 import displays_results as dr
 
 CNCs = []
-POP_SIZE = MU = 10
-LAMBDA = 60
-MUTPB = 0.2
-CXPB = 0.8
+POP_SIZE = MU = 20
+LAMBDA = 50
+MUTPB = 0.5
+CXPB = 0.5
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
-WEIGHTS = (-3.0, -1.0, -1.0)
-
+WEIGHTS = (-2.0, -1.0, -1.0)
+toolbox = base.Toolbox()
 creator.create("FitnessMul", base.Fitness, weights=WEIGHTS)
 creator.create("individual", list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
                    unassigned=tuple, raw=tuple)
 
 
-def main(pool):
-
+def main():
 
     database, username, password = pp.dbConnectionCheck()
 
@@ -47,7 +46,7 @@ def main(pool):
     stats = tools.Statistics()
 
 
-    toolbox = base.Toolbox()
+
     standard_in_datetime = standard
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)
@@ -58,13 +57,13 @@ def main(pool):
     toolbox.register("evaluate", pre_evaluate, standard, CNCs, JOB_POOL, VALVE_PRE_CNCs,
                      LOK_FORGING_CNCs, LOK_HEX_CNCs, LEFT_OVER)
     toolbox.register("population", tools.initRepeat, list, toolbox.Individual)
-    #toolbox.register("mate", tools.cxPartialyMatched)
-    #toolbox.register("mate", tools.cxUniformPartialyMatched, indpb = 0.5)
-    toolbox.register("mate", genetic_operators.cycle_crossover)
-    toolbox.register("mutate", genetic_operators.inversion_with_displacement_mutation)
+    toolbox.register("mate", tools.cxPartialyMatched)
+    #toolbox.register("mate", tools.cxOrdered)
+    #toolbox.register("mate", tools.cxCycle)
+    toolbox.register("mutate", tools.mutInversion)
     toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
     toolbox.register("select", tools.selNSGA2)
-    toolbox.register("map", pool.map)
+
     pop = toolbox.population(n=POP_SIZE)
 
 
@@ -72,7 +71,7 @@ def main(pool):
 
     result = algorithms.eaMuPlusLambda(pop, toolbox, mu=MU, lambda_=LAMBDA, cxpb=CXPB,
                                        mutpb=MUTPB, ngen=NGEN, stats=None, halloffame=hof, verbose=None)
-    pool.close()
+
     m, s = divmod((time.time() - start_point), 60)
     h, m = divmod(m, 60)
 
@@ -88,25 +87,36 @@ def main(pool):
 
     print("%s hours %s minutes and %s seconds" % (h, m, s))
 
-    schedules_selected = input("Choose the schedules you want to print out : ")
-    selected = re.findall("\d+", schedules_selected)
-    selected = list(map(int, selected))
+
 
     while (1):
+        printed = []
+        schedules_selected = input("Choose the schedules you want to print out(press 'q' to quit) : ")
+        if schedules_selected == 'q':
+            print("quit")
+            break
+        selected = re.findall("\d+", schedules_selected)
+        selected = list(map(int, selected))
         try:
             for i in selected:
-                print(i)
+                if i in printed:
+                    print("%d already printed"%i)
+                    continue
                 dr.print_job_schedule(assignment = hof[i - 1].assignment, start = start, end = end,
                                       standard = standard_in_datetime, total_number = len(hof[i - 1]),
                                       total_number_unassgiend= hof[i -1].unassigned,
                                       schedule_type = "optimized", endsAt = standard + hof[i - 1].raw[2],
                                       numDelayed =  hof[i - 1].raw[0], no_cycle_time = no_cycle_time,
                                       mu = MU, Lambda = LAMBDA, cx = CXPB, mut = MUTPB, rank = i)
-            break
+                print("%d successfully printed"%i)
+                printed.append(i)
         except Exception as ex:
             print("an error occured! : ", ex)
             continue
 
 if __name__ == "__main__":
-    pool = mp.Pool(4)
-    main(pool)
+    #pool = mp.Pool(4)
+    #toolbox.register("map")
+    main()
+    #pool.close()
+    #pool.join()

@@ -1,6 +1,7 @@
 import xlwt
 import datetime
-
+from time import time, mktime
+from math import ceil
 def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, endsAt, numDelayed, no_cycle_time, mu, Lambda, cx, mut, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
@@ -74,7 +75,12 @@ def print_job_schedule(assignment, start, end, standard, total_number, total_num
         row += 1
         for comp in machine.getAssignments():
             print_out_unit(comp, row, worksheet, color)
+            last = comp
             row += 1
+
+        endTime = ceil(int(last.getEndDateTime()) - (lambda x: int(time()) if (x == 'now') else mktime(
+            (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard) / (60 * 60 * 6))
+        worksheet.write(row, 6, endTime / (60 * 60 * 2))
 
     output.save("./schedules/schedule_%s_%s_%s_%s_%d_%d_%f_%f_%d.xls" % (schedule_type, start, end, standard, mu, Lambda, cx, mut, rank))
 

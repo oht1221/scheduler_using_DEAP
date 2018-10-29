@@ -2,9 +2,9 @@ import random
 import numpy as np
 import time
 
-def inversion_mutation(individual):
+def inversion(individual):
     total = len(individual)
-    interval = round(len(individual) / 2)
+    interval = round(len(individual) / 10)
     random.seed(time.time() * 10 % 10)
     start = random.randrange(0, total) #시작점 (왼쪽)
     end = start + interval - 1
@@ -19,7 +19,7 @@ def inversion_mutation(individual):
     return individual, interval, start, end
 
 def inversion_with_displacement_mutation(individual):
-    dummy, interval, start, end = inversion_mutation(individual)
+    dummy, interval, start, end = inversion(individual)
     #print(individual)
     temp = []
     for i in range(interval):
@@ -93,12 +93,13 @@ def cycle_crossover(ind1, ind2):
     cycle_2 = list()
     idx = 0
     while 1:
-        if ind2[idx] in cycle_1:
+        if idx in cycle_1:
             break
-        cycle_1.append(ind2[idx])
+        cycle_1.append(idx)
         idx = ind2.index(ind1[idx])
-    if len([i for i in range(len(ind2)) if ind2[i] not in cycle_1]) != 0:
-        start = min([i for i in range(len(ind2)) if ind2[i] not in cycle_1])
+    left = [i for i in range(len(ind2)) if i not in cycle_1]
+    if len(left) != 0:
+        start = min(left)
     else:
         return ind1, ind2
     idx = start

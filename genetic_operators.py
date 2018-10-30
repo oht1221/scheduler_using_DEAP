@@ -2,9 +2,9 @@ import random
 import numpy as np
 import time
 
-def inversion(individual):
+def inversion(individual, partOf = True):
     total = len(individual)
-    interval = round(len(individual) / 10)
+    interval = round(len(individual) / 4)
     random.seed(time.time() * 10 % 10)
     start = random.randrange(0, total) #시작점 (왼쪽)
     end = start + interval - 1
@@ -16,7 +16,10 @@ def inversion(individual):
         individual[(start + i) % total] = individual[(end - i) % total]
         individual[(end - i) % total] = temp
         i += 1
-    return individual, interval, start, end
+    if partOf :
+        return individual, interval, start, end
+    elif partOf is False:
+        return individual
 
 def inversion_with_displacement_mutation(individual):
     dummy, interval, start, end = inversion(individual)

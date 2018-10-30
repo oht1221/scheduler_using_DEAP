@@ -12,10 +12,10 @@ import preprocessing as pp
 import displays_results as dr
 
 CNCs = []
-POP_SIZE = MU = 20
-LAMBDA = 50
-MUTPB = 0.5
-CXPB = 0.5
+POP_SIZE = MU = 10
+LAMBDA = 40
+MUTPB = 0.35
+CXPB = 0.66
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
@@ -60,9 +60,9 @@ def main():
     toolbox.register("mate", tools.cxPartialyMatched)
     #toolbox.register("mate", tools.cxOrdered)
     #toolbox.register("mate", tools.cxCycle)
-    toolbox.register("mutate", tools.mutInversion)
-    toolbox.register("selTournamentDCD", tools.selTournamentDCD)  # top 0.5% of the whole will be selected
-    toolbox.register("select", tools.selNSGA2)
+    #toolbox.register("mutate", tools.mutInversion)
+    toolbox.register("mutate", genetic_operators.inversion, False)
+    toolbox.register("select", tools.selSPEA2)
 
     pop = toolbox.population(n=POP_SIZE)
 

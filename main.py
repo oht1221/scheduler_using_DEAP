@@ -6,6 +6,7 @@ from deap import tools, benchmarks, base, creator, algorithms
 import random
 import genetic_operators
 #import multiprocessing as mp
+import matplotlib as mpl
 import time
 from evaluation import pre_evaluate
 import preprocessing as pp

@@ -138,7 +138,7 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
 
     for n in [41,42]:
         if len(machines[n].getPending()) != 0:
-            cnc = CNCs[n]
+            cnc = CNCs[n - 7]
             for comp in machines[n].getPending():
                 assignSettingTimeComponent(standard, machines[n], cnc)
                 setTimes(comp, standard, machines[n])

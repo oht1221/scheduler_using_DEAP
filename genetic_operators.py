@@ -4,7 +4,7 @@ import time
 
 def inversion(individual):
     total = len(individual)
-    interval = round(len(individual) / 3)
+    interval = round(len(individual) / 2)
     random.seed(time.time() * 10 % 10)
     start = random.randrange(0, total) #시작점 (왼쪽)
     end = start + interval - 1

@@ -14,12 +14,12 @@ import displays_results as dr
 CNCs = []
 POP_SIZE = MU = 10
 LAMBDA = 40
-MUTPB = 0.35
-CXPB = 0.66
+MUTPB = 0.5
+CXPB = 0.5
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
-WEIGHTS = (-2.0, -1.0, -1.0)
+WEIGHTS = (-10.0, -1.0, -1.0)
 toolbox = base.Toolbox()
 creator.create("FitnessMul", base.Fitness, weights=WEIGHTS)
 creator.create("individual", list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
@@ -61,8 +61,8 @@ def main():
     #toolbox.register("mate", tools.cxOrdered)
     #toolbox.register("mate", tools.cxCycle)
     #toolbox.register("mutate", tools.mutInversion)
-    toolbox.register("mutate", genetic_operators.inversion, False)
-    toolbox.register("select", tools.selSPEA2)
+    toolbox.register("mutate", genetic_operators.simple_inversion_mutation)
+    toolbox.register("select", tools.selNSGA2)
 
     pop = toolbox.population(n=POP_SIZE)
 

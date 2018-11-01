@@ -2,6 +2,7 @@
 import copy
 from job import unit, component_unit, setting_time_unit, Component
 from math import ceil
+import queue
 
 def invert_linear_normalize(fitnesses, avgs, mins, c= None):
     scaled = []
@@ -78,7 +79,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
                 int(LAST_JOB_EXECUTION)]
 
     fitnesses = [int(TOTAL_DELAYED_JOBS_COUNT),
-                ceil((TOTAL_DELAYED_TIME) / (60 * 60 * 12)), #30분 단위로 수치화
+                ceil((TOTAL_DELAYED_TIME) / (60 * 60 * 6)), #30분 단위로 수치화
                  ceil((LAST_JOB_EXECUTION) / (60 * 60 * 2))] #30분 단위로 수치화
 
     individual.assignment = interpreted
@@ -135,16 +136,25 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
         if result is 0:
             unAssigned.append(j)
 
+    for n in [41,42]:
+        if len(machines[n].getPending()) != 0:
+            cnc = CNCs[n]
+            for comp in machines[n].getPending():
+                assignSettingTimeComponent(standard, machines[n], cnc)
+                setTimes(comp, standard, machines[n])
+                (machines[cnc.getNumber()]).attach(comp)
+                comp.assignedTo(cnc)
+
     return machines, unAssigned
 
-
+'''
 def evaluate(individual, normalization, avgs, params, c = None):
     print(individual.metrics)
     scaled = normalization(individual.metrics, avgs, params, c)
     individual.fitness.values = scaled
     print(scaled)
     return scaled
-
+'''
 
 def assign(job, CNCs, machines, unAssigned, standard):
     selected_CNCs = []
@@ -175,22 +185,23 @@ def assign(job, CNCs, machines, unAssigned, standard):
     if cnc_number in [39, 40] and job.getLokFitting(): #LOK이 39, 40에 걸린 경우 : 2차는 41, 42에서
         #if selected_machine.getTimeLeft() != 0:  # setting time 설정
         assignSettingTimeComponent(standard, selected_machine, cnc)
-
         setTimes(components[0], standard, selected_machine)
         selected_machine.attach(components[0])
         components[0].assignedTo(cnc)
-        cnc_next = selected_CNCs[minIndex+1]
 
-        selected_machine = machines[cnc_next.getNumber()]
+        cnc = selected_CNCs[minIndex+1]
+        cnc_number = cnc.getNumber()
+        selected_machine = machines[cnc_number]
 
         try:
             for i in range(len(components) - 1):
                 #if selected_machine.getTimeLeft() != 0:  # setting time 설정
+                if standard + selected_machine.getTimeLeft() < components[i].getEndDateTime():
+                    selected_machine.putPending(components[i + 1])
                 assignSettingTimeComponent(standard, selected_machine, cnc)
-
                 setTimes(components[i + 1], standard, selected_machine)
                 selected_machine.attach(components[i + 1])
-                components[i + 1].assignedTo(cnc_next)
+                components[i + 1].assignedTo(cnc)
 
         except Exception as ex:
             print("assgining error with job# %s occured \n"%job.getGoodCd(), ex)
@@ -202,6 +213,16 @@ def assign(job, CNCs, machines, unAssigned, standard):
             setTimes(comp, standard, selected_machine)
             (machines[cnc.getNumber()]).attach(comp)
             comp.assignedTo(cnc)
+
+    if cnc_number in [41, 42]:
+        pendingHead = selected_machine.checkPending(standard)
+        while pendingHead is not None:
+
+            assignSettingTimeComponent(standard, selected_machine, cnc)
+            setTimes(pendingHead, standard, selected_machine)
+            selected_machine.attach(pendingHead)
+            pendingHead.assignedTo(cnc)
+            pendingHead = selected_machine.checkPending(standard)
 
     return 1
 
@@ -225,6 +246,7 @@ class Machine:
     def __init__(self):
         self.assignments = list()
         self.time_left = 0
+        self.pending = list()
 
     def attach(self, component):
         self.assignments.append(component)
@@ -238,6 +260,20 @@ class Machine:
 
     def plusInitialTime(self, initial_time):
         self.time_left += initial_time
+
+    def putPending(self, component):
+        self.pending.append(component)
+
+    def getPending(self):
+        return self.pending
+
+    def checkPending(self, standard):
+        for c in self.pending:
+            if standard + self.getTimeLeft() >= (c.getPrev()).getEndDateTime():
+                self.pending.remove(c)
+                return c
+        return None
+
 
 def removesTheUnassigned(indiv, unassinged):
     for u in unassinged:

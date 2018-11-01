@@ -136,6 +136,18 @@ class Component:
     def getJob(self):
         return self.partOf
 
+    def getPrev(self):
+        if self.getProcessCd() - 1 >= 1:
+            return (self.getJob().getComponents())[self.getProcessCd() - 1]
+        else:
+            return None
+
+    def getNext(self):
+        if self.getProcessCd() + 1 <= len(self.getJob().getComponents):
+            return (self.getJob().getComponents())[self.getProcessCd() + 1]
+        else:
+            return None
+
     def turnDone(self):
         self.done = True
 

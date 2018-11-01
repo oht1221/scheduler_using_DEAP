@@ -83,12 +83,12 @@ def print_job_schedule(assignment, start, end, standard, total_number, total_num
             (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard) / (60 * 60 * 6))
         worksheet.write(row, 6, endTime / (60 * 60 * 2))
 
-    if open_workbook("./schedules/schedule_%s_%s_%s_%s_%d_%d_%f_%f_%d.xls" % (schedule_type, start, end, standard, mu, Lambda, cx, mut, rank)) is not None:
-        output.save("./schedules/schedule_%s_%s_%s_%s_%d_%d_%f_%f_%d.xls" % (schedule_type, start, end, standard, mu, Lambda, cx, mut, rank))
-    else:
+    try: #해당 파일명 있으면 이름 바꿔 저장
+        open_workbook("./schedules/schedule_%s_%s_%s_%s_%d_%d_%f_%f_%d.xls" % (schedule_type, start, end, standard, mu, Lambda, cx, mut, rank))
         add = input("A file with the same file name exist. Please add more words : ")
         output.save("./schedules/schedule_%s_%s_%s_%s_%d_%d_%f_%f_%d_%s.xls" % (schedule_type, start, end, standard, mu, Lambda, cx, mut, rank, add))
-
+    except: #해당 파일명 없으면 그대로 저장
+        output.save("./schedules/schedule_%s_%s_%s_%s_%d_%d_%f_%f_%d.xls" % (schedule_type, start, end, standard, mu, Lambda, cx, mut, rank))
     return
 
 def print_out_unit(comp, row, worksheet, color):

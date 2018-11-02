@@ -100,6 +100,8 @@ def print_out_unit(comp, row, worksheet, color):
         worksheet.write(row, 5, startTime)
         worksheet.write(row, 6, endTime)
 
+    elif comp.isWaiting():
+
     else:
         job = comp.getJob()
         due = datetime.datetime.fromtimestamp(job.getDue()).strftime('%Y-%m-%d %H:%M:%S')

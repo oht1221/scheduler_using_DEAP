@@ -79,9 +79,8 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
                 int(LAST_JOB_EXECUTION)]
 
     fitnesses = [int(TOTAL_DELAYED_JOBS_COUNT),
-                ceil((TOTAL_DELAYED_TIME) / (60 * 60 * 6)), #30분 단위로 수치화
-                 ceil((LAST_JOB_EXECUTION) / (60 * 60 * 2))] #30분 단위로 수치화
-
+                ceil((TOTAL_DELAYED_TIME) / (60 * 60 * 6)),
+                 ceil((LAST_JOB_EXECUTION) / (60 * 60 * 2))]
     individual.assignment = interpreted
     individual.unassigned = unassigned
     individual.raw = raw
@@ -137,7 +136,7 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
             unAssigned.append(j)
 
     for n in [41,42]:
-        if len(machines[n].getPending()) != 0:
+        while machines[n].checkPending() is not None:
             cnc = CNCs[n - 7]
             for comp in machines[n].getPending():
                 assignSettingTimeComponent(standard, machines[n], cnc)
@@ -198,6 +197,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
                 #if selected_machine.getTimeLeft() != 0:  # setting time 설정
                 if standard + selected_machine.getTimeLeft() < components[i].getEndDateTime():
                     selected_machine.putPending(components[i + 1])
+                    continue
                 assignSettingTimeComponent(standard, selected_machine, cnc)
                 setTimes(components[i + 1], standard, selected_machine)
                 selected_machine.attach(components[i + 1])
@@ -217,7 +217,6 @@ def assign(job, CNCs, machines, unAssigned, standard):
     if cnc_number in [41, 42]:
         pendingHead = selected_machine.checkPending(standard)
         while pendingHead is not None:
-
             assignSettingTimeComponent(standard, selected_machine, cnc)
             setTimes(pendingHead, standard, selected_machine)
             selected_machine.attach(pendingHead)
@@ -269,7 +268,10 @@ class Machine:
 
     def checkPending(self, standard):
         for c in self.pending:
-            if standard + self.getTimeLeft() >= (c.getPrev()).getEndDateTime():
+            prev = c.getPrev()
+            print(prev.getJob().getGoodCd())
+            print(prev.getProcessCd())
+            if standard + self.getTimeLeft() >= prev.getEndDateTime():
                 self.pending.remove(c)
                 return c
         return None

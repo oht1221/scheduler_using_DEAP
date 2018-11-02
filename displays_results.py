@@ -1,8 +1,8 @@
 import xlwt
-from xlrd import open_workbook
 import datetime
 from time import time, mktime
 from math import ceil
+from os import path
 def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, endsAt, numDelayed, no_cycle_time, mu, Lambda, cx, mut, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
@@ -99,7 +99,7 @@ def print_out_unit(comp, row, worksheet, color):
         worksheet.write(row, 5, startTime)
         worksheet.write(row, 6, endTime)
 
-    elif comp.isWaiting():
+    #elif comp.isWaiting():
 
     else:
         job = comp.getJob()

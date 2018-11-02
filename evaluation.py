@@ -214,7 +214,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
             (machines[cnc.getNumber()]).attach(comp)
             comp.assignedTo(cnc)
 
-    if cnc_number in [41, 42]:
+    if cnc_number in [41, 42] and job.getLokFitting():
         pendingHead = selected_machine.checkPending(standard)
         while pendingHead is not None:
             assignSettingTimeComponent(standard, selected_machine, cnc)

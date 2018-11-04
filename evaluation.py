@@ -3,7 +3,6 @@ import copy
 from job import unit, component_unit, setting_time_unit, Component
 from math import ceil
 
-
 def invert_linear_normalize(fitnesses, avgs, mins, c= None):
     scaled = []
     for i in range(avgs):

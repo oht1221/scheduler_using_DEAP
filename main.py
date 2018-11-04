@@ -63,7 +63,7 @@ def main():
     #toolbox.register("mate", tools.cxCycle)
     #toolbox.register("mutate", tools.mutInversion)
     toolbox.register("mutate", genetic_operators.simple_inversion_mutation)
-    toolbox.register("select", tools.selNSGA2)
+    toolbox.register("select", tools.selSPEA)
 
     pop = toolbox.population(n=POP_SIZE)
 

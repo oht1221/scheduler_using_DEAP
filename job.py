@@ -87,7 +87,7 @@ class Job:
 
 
 class Component:
-    def __init__(self, cycleTime, quantity, processCd, ifsetting = False, job = None):
+    def __init__(self, cycleTime, quantity, processCd, ifsetting = False, ifwaiting = False, job = None):
         self.cycleTime = cycleTime
         self.done = False
         self.partOf = job
@@ -98,6 +98,7 @@ class Component:
         self.startDateTime = None
         self.cnc = None
         self.ifSetting = ifsetting
+        self.ifWaiting = ifwaiting
         self.ifDelayed = False
         self.processcd = processCd
 
@@ -138,13 +139,13 @@ class Component:
 
     def getPrev(self):
         if self.getProcessCd() - 1 >= 1:
-            return (self.getJob().getComponents())[self.getProcessCd() - 1]
+            return (self.getJob().getComponents())[(self.getProcessCd() - 1) - 1] #process cd가 1부터 시작하므로, 1을 더 빼준 값이 이전 component의 index가 됨
         else:
             return None
 
     def getNext(self):
         if self.getProcessCd() + 1 <= len(self.getJob().getComponents):
-            return (self.getJob().getComponents())[self.getProcessCd() + 1]
+            return (self.getJob().getComponents())[(self.getProcessCd() - 1) + 1]
         else:
             return None
 
@@ -171,6 +172,9 @@ class Component:
 
     def isSetting(self):
         return self.ifSetting
+
+    def isWaiting(self):
+        return self.isWaiting
 
     def getCnc(self):
         return self.cnc

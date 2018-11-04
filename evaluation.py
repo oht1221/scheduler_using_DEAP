@@ -79,8 +79,8 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
                 int(LAST_JOB_EXECUTION)]
 
     fitnesses = [int(TOTAL_DELAYED_JOBS_COUNT),
-                ceil((TOTAL_DELAYED_TIME) / (60 * 60 * 6)),
-                 ceil((LAST_JOB_EXECUTION) / (60 * 60 * 2))]
+                ceil((TOTAL_DELAYED_TIME) / (60 * 60)), #6시간 단위
+                 ceil((LAST_JOB_EXECUTION) / (60 * 60))] #2시간 단위
     individual.assignment = interpreted
     individual.unassigned = unassigned
     individual.raw = raw
@@ -135,10 +135,12 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
         if result is 0:
             unAssigned.append(j)
 
-    for n in [41,42]:
-        while machines[n].checkPending() is not None:
-            cnc = CNCs[n - 7]
-            for comp in machines[n].getPending():
+    for n in [41, 42]:
+        cnc = CNCs[n - 7]
+        if len(machines[n].getPending()) != 0:
+            for i, comp in enumerate(machines[n].getPending()):
+                if i == 0: #최종적으로 남은 pending은 그 앞에 waiting time을 추가해줘야함.
+                    assignWaitingTimeComponent(standard, machines[n], cnc, endtime=comp.getPrev().getEndDateTime())
                 assignSettingTimeComponent(standard, machines[n], cnc)
                 setTimes(comp, standard, machines[n])
                 (machines[cnc.getNumber()]).attach(comp)
@@ -188,7 +190,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
         selected_machine.attach(components[0])
         components[0].assignedTo(cnc)
 
-        cnc = selected_CNCs[minIndex+1]
+        cnc = selected_CNCs[minIndex+1] #선택된 CNC들 중에서는 39 바로 다음이 41번, 40번 바로 다음이 42번
         cnc_number = cnc.getNumber()
         selected_machine = machines[cnc_number]
 
@@ -214,7 +216,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
             (machines[cnc.getNumber()]).attach(comp)
             comp.assignedTo(cnc)
 
-    if cnc_number in [41, 42] and job.getLokFitting():
+    if cnc_number in [41, 42]:
         pendingHead = selected_machine.checkPending(standard)
         while pendingHead is not None:
             assignSettingTimeComponent(standard, selected_machine, cnc)
@@ -232,6 +234,13 @@ def assignSettingTimeComponent(standard, selected_machine, cnc):
     setting_time.assignedTo(cnc)
 
     return 0
+
+
+def assignWaitingTimeComponent(standard, selected_machine, cnc, endtime):
+    waiting_time = Component(cycleTime= endtime - selected_machine.getTimeLeft(), quantity=1, processCd=None, ifwaiting = True)
+    setTimes(waiting_time, standard, selected_machine)
+    selected_machine.attach(waiting_time)
+    waiting_time.assignedTo(cnc)
 
 def setTimes(component, standard, selected_machine):
     component_start_time = standard + selected_machine.getTimeLeft()
@@ -269,8 +278,6 @@ class Machine:
     def checkPending(self, standard):
         for c in self.pending:
             prev = c.getPrev()
-            print(prev.getJob().getGoodCd())
-            print(prev.getProcessCd())
             if standard + self.getTimeLeft() >= prev.getEndDateTime():
                 self.pending.remove(c)
                 return c

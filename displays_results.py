@@ -94,12 +94,15 @@ def print_out_unit(comp, row, worksheet, color):
     startTime = datetime.datetime.fromtimestamp(comp.getStartDateTime()).strftime('%Y-%m-%d %H:%M:%S')
     endTime = datetime.datetime.fromtimestamp(comp.getEndDateTime()).strftime('%Y-%m-%d %H:%M:%S')
 
-    if comp.isSetting():
+    if comp.isSetting() is True:
         worksheet.write(row, 0, "Setting Time")
         worksheet.write(row, 5, startTime)
         worksheet.write(row, 6, endTime)
 
-    #elif comp.isWaiting():
+    elif comp.isWaiting() is True:
+        worksheet.write(row, 0, "Waiting Time")
+        worksheet.write(row, 5, startTime)
+        worksheet.write(row, 6, endTime)
 
     else:
         job = comp.getJob()

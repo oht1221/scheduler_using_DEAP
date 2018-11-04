@@ -20,7 +20,7 @@ CXPB = 0.5
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
-WEIGHTS = (-1.0, -10.0, -1.0)
+WEIGHTS = (-1.0, -1.0, -1.0)
 toolbox = base.Toolbox()
 creator.create("FitnessMul", base.Fitness, weights=WEIGHTS)
 creator.create("individual", list, fitness=creator.FitnessMul, individual_number=int, assignment=dict,
@@ -43,7 +43,7 @@ def main():
 
     # end = str(input("delivery date until: "))
 
-    hof = tools.ParetoFront()
+    hof = tools.HallOfFame()
     stats = tools.Statistics()
 
 
@@ -63,7 +63,7 @@ def main():
     #toolbox.register("mate", tools.cxCycle)
     #toolbox.register("mutate", tools.mutInversion)
     toolbox.register("mutate", genetic_operators.simple_inversion_mutation)
-    toolbox.register("select", tools.selSPEA)
+    toolbox.register("select", tools.selSPEA2)
 
     pop = toolbox.population(n=POP_SIZE)
 

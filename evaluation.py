@@ -143,7 +143,7 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
                     print(comp.getJob().getWorkno())
                 assignSettingTimeComponent(standard, machines[n], cnc)
                 setTimes(comp, standard, machines[n])
-                (machines[cnc.getNumber()]).attach(comp)
+                (machines[n]).attach(comp)
                 comp.assignedTo(cnc)
 
     return machines, unAssigned

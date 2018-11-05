@@ -49,7 +49,6 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     for i, cnc in enumerate(CNCs, 0):
         cnc_number = int(cnc.getNumber())
         machines[cnc_number] = Machine()
-        machines[cnc_number].plusInitialTime(initial_times[i])
 
     indiv_ref = refer_individual(individual, job_pool)
     interpreted, unassigned = interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard)

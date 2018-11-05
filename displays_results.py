@@ -82,9 +82,9 @@ def print_job_schedule(assignment, scores, start, end, standard, total_number, t
             last = comp
             row += 1
 
-        endTime = ceil(int(last.getEndDateTime()) - (lambda x: int(time()) if (x == 'now') else mktime(
-            (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard) / (60 * 60 * 6))
-        worksheet.write(row, 6, endTime / (60 * 60 * 2))
+        endTime = ceil((int(last.getEndDateTime()) - (lambda x: int(time()) if (x == 'now') else mktime(
+            (int(x[0:4]), int(x[4:6]), int(x[6:8]), 12, 0, 0, 0, 0, 0)))(standard)) / (60 * 60))
+        worksheet.write(row, 6, endTime)
 
     if path.exists("./schedules/schedule_%s_%s_%s_%s_%d_%d_%f_%f_%d.xls" % (schedule_type, start, end, standard, mu, Lambda, cx, mut, rank)):
         add = input("A file with the same file name exist. Please add more words : ")

@@ -119,7 +119,6 @@ def make_job_pool(job_pool, start, end, database, username, password):
             (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 16, 0, 0, 0, 0, 0))  # 오후4시 기준
         due_date_seconds = int(due_date_seconds)
         GoodCd = row[3]
-        cycle_time = []
         rawMaterialSize = float(row[8])
 
         '''try:
@@ -131,19 +130,17 @@ def make_job_pool(job_pool, start, end, database, username, password):
         Qty = row[5]
         Gubun = row[7]
 
-        if row[9] == 'Y':
+        LOKFITTING = 0
+        if row[9] == 'Y':  #LOK인지 아닌지 구분
             LOKFITTING = 1
-        elif row[9] == 'N':
-            LOKFITTING = 0
 
-        if row[10] == 'Y':
+        LOKFITTINGSIZE = 0
+        if row[10] == 'Y':  #LOK중에서 1,2,3, 2m,3m,4m인지 확인
             LOKFITTINGSIZE = 1
-        elif row[10] == 'N':
-            LOKFITTINGSIZE = 0
 
-        search_cycle_time(cursor_cycletime, cycle_time, GoodCd)
+        cycle_time = search_cycle_time(cursor_cycletime, GoodCd)
 
-        if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or sum(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
+        if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or len(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
             row = cursor_job.fetchone()
             no_cycle_time.append(workno)
             continue
@@ -160,7 +157,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
     return total_number, no_cycle_time
 
 
-def search_cycle_time(cursor, cycle_time, GoodCd):
+def search_cycle_time(cursor, GoodCd):
 
     flag1 = 0
     flag2 = 0
@@ -172,6 +169,7 @@ def search_cycle_time(cursor, cycle_time, GoodCd):
         flag3 = 0
         
     '''
+    cycle_time = []
     cursor.execute("""select  TWRC.Goodcd, TWRC.Workno, TWRC.Cnc,TWRC.Seq, TWRC.Processcd, TWRC.Prodqty, TWRC.Errqty,  
         TWRC.Cycletime, max(TWRC.Workdate) as workdate, TWRC.Starttime, TWRC.Endtime
         from 
@@ -188,15 +186,18 @@ def search_cycle_time(cursor, cycle_time, GoodCd):
     while row:
 
         processcd = row[4].strip()
-        if processcd == 'P1' and flag1 == 0:
-            cycle_time.append(int(row[7]))
-            flag1 = 1
-        elif processcd == 'P2' and flag2 == 0:
-            cycle_time.append(int(row[7]))
-            flag2 = 1
-        elif processcd == 'P3' and flag3 == 0:
-            cycle_time.append(int(row[7]))
-            flag3 = 1
+        if processcd == 'P1':
+            if int(row[7]) != 0 and flag1 == 0:
+                cycle_time.append(int(row[7]))
+                flag1 = 1
+        elif processcd == 'P2':
+            if int(row[7]) != 0 and flag2 == 0:
+                cycle_time.append(int(row[7]))
+                flag2 = 1
+        elif processcd == 'P3':
+            if int(row[7]) != 0 and flag3 == 0:
+                cycle_time.append(int(row[7]))
+                flag3 = 1
 
         if flag1 == 1 and flag2 == 1 and flag3 == 1:
             break
@@ -204,10 +205,14 @@ def search_cycle_time(cursor, cycle_time, GoodCd):
         row = cursor.fetchone()
 
     try:
-        cycle_time.remove(0)
+        i = 1
+        while(1):
+            cycle_time.remove(0)
+            print("%s includes zero cycle time #%d!\n"%GoodCd, i)
+            i+=1
     except Exception:
         pass
-
+    return cycle_time
 
 def getLeftOver(database, username, password):
     initial_times = list()

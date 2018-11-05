@@ -43,7 +43,7 @@ def main():
 
     # end = str(input("delivery date until: "))
 
-    hof = tools.HallOfFame()
+    hof = tools.HallOfFame(MU)
     stats = tools.Statistics()
 
 
@@ -63,7 +63,7 @@ def main():
     #toolbox.register("mate", tools.cxCycle)
     #toolbox.register("mutate", tools.mutInversion)
     toolbox.register("mutate", genetic_operators.simple_inversion_mutation)
-    toolbox.register("select", tools.selSPEA2)
+    toolbox.register("select", tools.selNSGA2)
 
     pop = toolbox.population(n=POP_SIZE)
 
@@ -103,7 +103,7 @@ def main():
                 if i in printed:
                     print("%d already printed"%i)
                     continue
-                dr.print_job_schedule(assignment = hof[i - 1].assignment, start = start, end = end,
+                dr.print_job_schedule(assignment = hof[i - 1].assignment, scores =hof[i - 1].fitness, start = start, end = end,
                                       standard = standard_in_datetime, total_number = len(hof[i - 1]),
                                       total_number_unassgiend= hof[i -1].unassigned,
                                       schedule_type = "optimized", endsAt = standard + hof[i - 1].raw[2],

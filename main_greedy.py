@@ -43,19 +43,18 @@ if __name__ == "__main__":
 
 
     indiv = toolbox.individual()
-    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (-1) * JOB_POOL[job_number].getTime()), reverse = False)
+    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (1) * JOB_POOL[job_number].getTime()), reverse = False)
     '''for j in indiv:
         print(JOB_POOL[j].getDue())
         print(JOB_POOL[j].getTime())
     '''
 
-    pre_evaluate(standard, CNCs, JOB_POOL, VALVE_PRE_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, LEFT_OVER, indiv)
-
-
+    result = pre_evaluate(standard, CNCs, JOB_POOL, VALVE_PRE_CNCs, LOK_FORGING_CNCs, LOK_HEX_CNCs, LEFT_OVER, indiv)
+    indiv.fitness.values = result[0]
 
     print(indiv.fitness.values)
 
-    dr.print_job_schedule(assignment = indiv.assignment, start=start, end=end,
+    dr.print_job_schedule(assignment = indiv.assignment, scores = indiv.fitness.values, start=start, end=end,
                           standard=standard_in_datetime, total_number=len(indiv.assignment),
                           total_number_unassgiend=indiv.unassigned,
                           schedule_type="greedy", endsAt=standard + indiv.raw[2],

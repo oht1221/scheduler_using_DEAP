@@ -3,7 +3,7 @@ import datetime
 from time import time, mktime
 from math import ceil
 from os import path
-def print_job_schedule(assignment, start, end, standard, total_number, total_number_unassgiend, schedule_type, endsAt, numDelayed, no_cycle_time, mu, Lambda, cx, mut, rank = 0):
+def print_job_schedule(assignment, scores, start, end, standard, total_number, total_number_unassgiend, schedule_type, endsAt, numDelayed, no_cycle_time, mu, Lambda, cx, mut, rank = 0):
     output = xlwt.Workbook(encoding='utf-8')  # utf-8 인코딩 방식의 workbook 생성
     output.default_style.font.height = 20 * 11  # (11pt) 기본폰트설정 다양한건 찾아보길
     assigned = assignment
@@ -50,6 +50,9 @@ def print_job_schedule(assignment, start, end, standard, total_number, total_num
     for i in range(len(no_cycle_time)):
         worksheet.write(7, 1 + i, no_cycle_time[i])
         worksheet.col(i + 1).width = 400 * 15
+
+    for i, s in enumerate(scores):
+        worksheet.write(8, i, s)
 
     for key, machine in assigned.items():
         row = 0

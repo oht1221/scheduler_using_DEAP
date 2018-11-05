@@ -79,6 +79,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     fitnesses = [int(TOTAL_DELAYED_JOBS_COUNT),
                 ceil((TOTAL_DELAYED_TIME) / (60 * 60)), #6시간 단위
                  ceil((LAST_JOB_EXECUTION) / (60 * 60))] #2시간 단위
+
     individual.assignment = interpreted
     individual.unassigned = unassigned
     individual.raw = raw
@@ -139,6 +140,7 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
             for i, comp in enumerate(machines[n].getPending()):
                 if i == 0: #최종적으로 남은 pending은 그 앞에 waiting time을 추가해줘야함.
                     assignWaitingTimeComponent(standard, machines[n], cnc, endtime=comp.getPrev().getEndDateTime())
+                    print(comp.getJob().getWorkno())
                 assignSettingTimeComponent(standard, machines[n], cnc)
                 setTimes(comp, standard, machines[n])
                 (machines[cnc.getNumber()]).attach(comp)
@@ -204,7 +206,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
                 components[i + 1].assignedTo(cnc)
 
         except Exception as ex:
-            print("assgining error with job# %s occured \n"%job.getGoodCd(), ex)
+            print("assgining error with job# %s occured \n"%job.getGoodCd(), len(job.getComponents()), ex)
 
     else:
         for comp in components: #comp1, comp2 연달아 배정(향 후 변경 가능)
@@ -235,7 +237,7 @@ def assignSettingTimeComponent(standard, selected_machine, cnc):
 
 
 def assignWaitingTimeComponent(standard, selected_machine, cnc, endtime):
-    waiting_time = Component(cycleTime= endtime - selected_machine.getTimeLeft(), quantity=1, processCd=None, ifwaiting = True)
+    waiting_time = Component(cycleTime= endtime - (selected_machine.getTimeLeft() + standard), quantity=1, processCd=None, ifwaiting = True)
     setTimes(waiting_time, standard, selected_machine)
     selected_machine.attach(waiting_time)
     waiting_time.assignedTo(cnc)

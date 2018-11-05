@@ -174,7 +174,7 @@ class Component:
         return self.ifSetting
 
     def isWaiting(self):
-        return self.isWaiting
+        return self.ifWaiting
 
     def getCnc(self):
         return self.cnc

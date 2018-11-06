@@ -44,9 +44,6 @@ def main():
     # end = str(input("delivery date until: "))
 
     hof = tools.HallOfFame(MU)
-    stats = tools.Statistics()
-
-
 
     standard_in_datetime = standard
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(

@@ -99,7 +99,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
      left outer join TMinor m3 on i.Class3 = m3.MinorCd
      left outer join TMinor m4 on g.Class4 = m4.MinorCd
      where DeliveryDate between """ + deli_start + """ and """ + deli_end + """
-       --and PmsYn = 'N'
+       and PmsYn = 'N'
        and ContractYn = '1'
        --    단조    Hex Bar    Round Bar    Square Bar    VALVE 선작업
        and i.Class3 in ('061038', '061039', '061040', '061048', '061126')
@@ -155,6 +155,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
 
     total_number = len(job_pool)
     print("the total # of jobs: %d"%(total_number))
+    print("the totla # of no cycle time : %d"%len(no_cycle_time))
     return total_number, no_cycle_time
 
 
@@ -216,7 +217,7 @@ def search_cycle_time(cursor, GoodCd):
     return cycle_time
 
 def getLeftOver(database, username, password):
-    initial_times = list()
+    initial_times = dict()
     cursor = accessDB.AccessDB(database, username, password)
     cursor.execute(
     """
@@ -278,6 +279,9 @@ def getLeftOver(database, username, password):
         cncNo = row[0]
         try:
             cncNo = int((cncNo.split())[0])  # 숫자(-문자) 형식 아닌 spec이 나오면 무시
+            if cncNo == [14, 26, 27, 28, 29, 30, 31]:  # 후가공 CNC
+                row = cursor.fetchone()
+                continue
         except ValueError:
             row = cursor.fetchone()
             continue
@@ -287,9 +291,7 @@ def getLeftOver(database, username, password):
         cycleTime = row[5]
         leftQty = max(0, orderQty - producedQty)
         leftover = int(leftQty * cycleTime)
-        initial_times.append(leftover)
-        print(i, cycleTime)
-        i+=1
+        initial_times[cncNo] = leftover
         '''
         cycle_time = [0, 0, 0]
         if processcd == 'P1':
@@ -319,7 +321,7 @@ def getLeftOver(database, username, password):
         row = cursor.fetchone()
     cursor.close()
 
-    return initial_times, cycleTime
+    return initial_times
 
 def schedule(CNCs, job_pool, machines):
     total_delayed_time = 0

@@ -99,7 +99,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
      left outer join TMinor m3 on i.Class3 = m3.MinorCd
      left outer join TMinor m4 on g.Class4 = m4.MinorCd
      where DeliveryDate between """ + deli_start + """ and """ + deli_end + """
-       and PmsYn = 'N'
+       --and PmsYn = 'N'
        and ContractYn = '1'
        --    단조    Hex Bar    Round Bar    Square Bar    VALVE 선작업
        and i.Class3 in ('061038', '061039', '061040', '061048', '061126')

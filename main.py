@@ -34,8 +34,8 @@ def main():
     pp.read_CNCs('./장비정보.xlsx', CNCs)
     JOB_POOL = list()
     start = str(input("delivery date from: "))
+    end = str(input("delivery date till: "))
     standard = input("schedule starts on : ")
-    end = "29991212"
     NGEN = int(input("# of gen: "))
 
     IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password)
@@ -103,7 +103,7 @@ def main():
                 if i in printed:
                     print("%d already printed"%i)
                     continue
-                dr.print_job_schedule(assignment = hof[i - 1].assignment, scores =hof[i - 1].fitness, start = start, end = end,
+                dr.print_job_schedule(assignment = hof[i - 1].assignment, scores =hof[i - 1].fitness.values, start = start, end = end,
                                       standard = standard_in_datetime, total_number = len(hof[i - 1]),
                                       total_number_unassgiend= hof[i -1].unassigned,
                                       schedule_type = "optimized", endsAt = standard + hof[i - 1].raw[2],

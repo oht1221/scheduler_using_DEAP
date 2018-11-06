@@ -140,7 +140,8 @@ def make_job_pool(job_pool, start, end, database, username, password):
 
         cycle_time = search_cycle_time(cursor_cycletime, GoodCd)
 
-        if sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or len(cycle_time) == 0: #CNC 공정 만으로 4일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
+        '''sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or '''
+        if len(cycle_time) == 0: #CNC 공정 만으로 2일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
             row = cursor_job.fetchone()
             no_cycle_time.append(workno)
             continue

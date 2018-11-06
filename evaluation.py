@@ -140,7 +140,7 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
             for i, comp in enumerate(machines[n].getPending()):
                 if i == 0: #최종적으로 남은 pending은 그 앞에 waiting time을 추가해줘야함.
                     assignWaitingTimeComponent(standard, machines[n], cnc, endtime=comp.getPrev().getEndDateTime())
-                    print(comp.getJob().getWorkno())
+
                 assignSettingTimeComponent(standard, machines[n], cnc)
                 setTimes(comp, standard, machines[n])
                 (machines[n]).attach(comp)

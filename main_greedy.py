@@ -18,7 +18,7 @@ if __name__ == "__main__":
     CNCs = []
     JOB_POOL = list()
     start = str(input("delivery date from: "))
-    end = "20999999"
+    end = str(input("delivery date till: "))
     standard = input("schedule starts on : ")
 
     IND_SIZE , no_cycle_time = TOTAL_NUMBER_OF_THE_POOL = pp.make_job_pool(JOB_POOL, start, end, database, username, password)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     print(indiv.fitness.values)
 
     dr.print_job_schedule(assignment = indiv.assignment, scores = indiv.fitness.values, start=start, end=end,
-                          standard=standard_in_datetime, total_number=len(indiv.assignment),
+                          standard=standard_in_datetime, total_number=len(indiv),
                           total_number_unassgiend=indiv.unassigned,
                           schedule_type="greedy", endsAt=standard + indiv.raw[2],
                           numDelayed=indiv.raw[0], no_cycle_time=no_cycle_time,

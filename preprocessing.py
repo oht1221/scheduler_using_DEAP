@@ -49,9 +49,9 @@ def dbConnectionCheck():
 
     while (1):
         try:
-            database = input("database name : ")
-            username = input("user name : ")
-            password = input("password : ")
+            database = "hansun" #input("database name : ")
+            username = "han_eng_back"#input("user name : ")
+            password = "HseAdmin1991"#input("password : ")
             cursor_test = accessDB.AccessDB(database, username, password)
 
         except Exception as e:

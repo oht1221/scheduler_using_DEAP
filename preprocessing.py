@@ -273,7 +273,7 @@ def getLeftOver(database, username, password):
 
     row = cursor.fetchone()
 
-
+    i = 1
     while (row):
         cncNo = row[0]
         try:
@@ -288,7 +288,8 @@ def getLeftOver(database, username, password):
         leftQty = max(0, orderQty - producedQty)
         leftover = int(leftQty * cycleTime)
         initial_times.append(leftover)
-
+        print(i, cycleTime)
+        i+=1
         '''
         cycle_time = [0, 0, 0]
         if processcd == 'P1':
@@ -318,7 +319,7 @@ def getLeftOver(database, username, password):
         row = cursor.fetchone()
     cursor.close()
 
-    return initial_times
+    return initial_times, cycleTime
 
 def schedule(CNCs, job_pool, machines):
     total_delayed_time = 0

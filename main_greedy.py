@@ -25,6 +25,10 @@ if __name__ == "__main__":
     LEFT_OVER = pp.getLeftOver(database, username, password)
     pp.read_CNCs('./장비정보.xlsx', CNCs)
 
+
+    for j in JOB_POOL:
+        print(j.getGoodCd(), j.getGoodNo(), j.getCycletime(), j.getType(), j.getLokFitting(), j.getLokFittingSize())
+
     machines = {}
     for cnc in CNCs:
         machines[float(cnc.getNumber())] = list()
@@ -43,7 +47,7 @@ if __name__ == "__main__":
 
 
     indiv = toolbox.individual()
-    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (-1) * JOB_POOL[job_number].getTime()), reverse = False)
+    indiv.sort(key = lambda job_number : (JOB_POOL[job_number].getDue(), (1) * JOB_POOL[job_number].getTime()), reverse = False)
     '''for j in indiv:
         print(JOB_POOL[j].getDue())
         print(JOB_POOL[j].getTime())

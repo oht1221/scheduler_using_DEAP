@@ -4,7 +4,8 @@ import numpy as np
 
 class Job:
     def __init__(self, workno, goodCd, quantity, goodNo = None, time = None , type = None,
-                 size = None, rawNo = None, rawCd = None, due = 0, LOKFITTING = None, LOKFITTINGSIZE = None):
+                 size = None, rawNo = None, rawCd = None, due = 0, LOKFITTING = None, LOKFITTINGSIZE = None,
+                 seperation = False):
         self.workno = workno
         self.goodNo = goodNo
         self.goodCd = goodCd
@@ -22,9 +23,13 @@ class Job:
         self.lok_fitting = LOKFITTING
         self.lok_fitting_size = LOKFITTINGSIZE
         self.ifDelayed = False
+        self.ifSeperated = seperation
 
     def ifAllDone(self):
         return np.all([(self.getSeries())[i].ifDone() for i in range(len(self.getSeries()))])
+
+    def isSeperated(self):
+        return self.ifSeperated
 
     def update_due(self):
         self.due -= 1

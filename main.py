@@ -41,10 +41,13 @@ def main():
     IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password)
     LEFT_OVER = pp.getLeftOver(database, username, password)
 
+    for j in JOB_POOL:
+        print(j.getGoodCd(), j.getGoodNo(), j.getCycletime(), j.getType(), j.getLokFitting(), j.getLokFittingSize())
+
     # end = str(input("delivery date until: "))
 
     hof = tools.HallOfFame(MU)
-
+    #hof = tools.ParetoFront()
     standard_in_datetime = standard
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
         (int(x[0:4]), int(x[4:6]), int(x[6:8]), 8, 0, 0, 0, 0, 0)))(standard)

@@ -99,7 +99,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
      left outer join TMinor m3 on i.Class3 = m3.MinorCd
      left outer join TMinor m4 on g.Class4 = m4.MinorCd
      where DeliveryDate between """ + deli_start + """ and """ + deli_end + """
-       and PmsYn = 'N'
+       --and PmsYn = 'N'
        and ContractYn = '1'
        --    단조    Hex Bar    Round Bar    Square Bar    VALVE 선작업
        and i.Class3 in ('061038', '061039', '061040', '061048', '061126')
@@ -109,6 +109,19 @@ def make_job_pool(job_pool, start, end, database, username, password):
     row = cursor_job.fetchone()
 
     while row:
+        GoodCd = row[3]
+        Gubun = row[7]
+        cycle_time = search_cycle_time(cursor_cycletime, GoodCd)
+        '''sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or '''
+        if len(cycle_time) == 0:  # CNC 공정 만으로 2일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
+            if Gubun == 0 or Gubun == 3 or Gubun == 4:
+                cycle_time = [150, 150, 150]
+            elif Gubun == 1 or Gubun == 2:
+                cycle_time = [150, 150]
+                # row = cursor_job.fetchone()
+                # no_cycle_time.append([workno, GoodCd, Gubun])
+                # continue
+
         workno = row[0]
         GoodNo = row[1]
         rawMaterialNo = row[2]
@@ -118,7 +131,8 @@ def make_job_pool(job_pool, start, end, database, username, password):
         due_date_seconds = time.mktime(
             (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 16, 0, 0, 0, 0, 0))  # 오후4시 기준
         due_date_seconds = int(due_date_seconds)
-        GoodCd = row[3]
+
+
         rawMaterialSize = float(row[8])
 
         '''try:
@@ -127,8 +141,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
             row = cursor1.fetchone()
             continue 
         '''
-        Qty = row[5]
-        Gubun = row[7]
+
 
         LOKFITTING = 0
         if row[9] == 'Y':  #LOK인지 아닌지 구분
@@ -138,24 +151,32 @@ def make_job_pool(job_pool, start, end, database, username, password):
         if row[10] == 'Y':  #LOK중에서 1,2,3, 2m,3m,4m인지 확인
             LOKFITTINGSIZE = 1
 
-        cycle_time = search_cycle_time(cursor_cycletime, GoodCd)
+        Qty = row[5]
+        if Qty > 500:
+            while Qty > 0:
+                qty_part = min(500, Qty)
+                Qty -= 500
+                newJob = Job(workno=workno, goodNo=GoodNo, goodCd=GoodCd, time=cycle_time, type=Gubun, quantity=qty_part,
+                             due=due_date_seconds, rawNo=rawMaterialNo, rawCd=rawMaterialCd,
+                             size=rawMaterialSize, LOKFITTING=LOKFITTING, LOKFITTINGSIZE=LOKFITTINGSIZE, seperation=True)
+                job_pool.append(newJob)
 
-        '''sum(cycle_time) * Qty > 60 * 60 * 24 * 4 or '''
-        if len(cycle_time) == 0: #CNC 공정 만으로 2일 이상 걸리는 작업, 사이클 타임 0 인 작업 제외
-            row = cursor_job.fetchone()
-            no_cycle_time.append(workno)
-            continue
+        else:
+            newJob = Job(workno=workno, goodNo=GoodNo, goodCd=GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
+                     due=due_date_seconds, rawNo=rawMaterialNo, rawCd=rawMaterialCd,
+                     size=rawMaterialSize, LOKFITTING=LOKFITTING, LOKFITTINGSIZE=LOKFITTINGSIZE)
+            job_pool.append(newJob)
 
-        newJob = Job(workno=workno, goodNo=GoodNo, goodCd = GoodCd, time=cycle_time, type=Gubun, quantity=Qty,
-                            due=due_date_seconds, rawNo = rawMaterialNo, rawCd = rawMaterialCd,
-                     size=rawMaterialSize, LOKFITTING = LOKFITTING, LOKFITTINGSIZE = LOKFITTINGSIZE)
-
-        job_pool.append(newJob)
         row = cursor_job.fetchone()
 
     total_number = len(job_pool)
     print("the total # of jobs: %d"%(total_number))
-    print("the totla # of no cycle time : %d"%len(no_cycle_time))
+    print("the total # of no cycle time : %d"%len(no_cycle_time))
+    print("---------------------------------------------------------")
+    for n in no_cycle_time:
+        print(n[0], n[1], n[2])
+
+    print("---------------------------------------------------------")
     return total_number, no_cycle_time
 
 

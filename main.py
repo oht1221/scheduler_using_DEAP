@@ -42,7 +42,7 @@ def main():
     LEFT_OVER = pp.getLeftOver(database, username, password)
 
     for j in JOB_POOL:
-        print(j.getGoodCd(), j.getGoodNo(), j.getCycletime(), j.getType(), j.getLokFitting(), j.getLokFittingSize())
+        print(j.getGoodCd(), j.getGoodNo(), j.getCycletime(), j.getType(), j.getQuantity())
 
     # end = str(input("delivery date until: "))
 

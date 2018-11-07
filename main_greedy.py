@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 
     for j in JOB_POOL:
-        print(j.getGoodCd(), j.getGoodNo(), j.getCycletime(), j.getType(), j.getLokFitting(), j.getLokFittingSize())
+        print(j.getGoodCd(), j.getGoodNo(), j.getCycletime(), j.getType(), j.getQuantity())
 
     machines = {}
     for cnc in CNCs:

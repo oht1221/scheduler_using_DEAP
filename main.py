@@ -5,7 +5,7 @@ import re
 from deap import tools, benchmarks, base, creator, algorithms
 import random
 import genetic_operators
-#import multiprocessing as mp
+from multiprocessing import pool
 import matplotlib as mpl
 import time
 from evaluation import pre_evaluate
@@ -117,9 +117,9 @@ def main():
 
 
 if __name__ == "__main__":
-    #pool = mp.Pool(4)
-    #toolbox.register("map")
+    pool = pool.Pool(40)
+    toolbox.register("map", pool.map)
     while 1:
         main()
-    #pool.close()
-    #pool.join()
+        pool.close()
+        pool.join()

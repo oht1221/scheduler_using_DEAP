@@ -4,8 +4,6 @@ import time
 from evaluation import pre_evaluate
 from deap import tools, benchmarks, base, creator
 import displays_results as dr
-import matplotlib as mpl
-
 import job
 import copy
 

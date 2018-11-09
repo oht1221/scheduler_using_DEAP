@@ -71,6 +71,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
                     diff += min(j.getDue() - (job_end_time + 60 * 60 * 24 * 5), 0)  # 5일간 다른 공정, 같은 작업지시서에 조사후, 하나라도 due안에 안되면 job은 delayed
                     if j.getDue() - (job_end_time + 60 * 60 * 24 * 5) < 0:
                         j.delayed()
+
         else:
             components = job.getComponents()
             last_component = components[-1] #마지막 공정이 끝난 시간
@@ -114,31 +115,31 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
     CNCs_LOK_size_forging = tuple(filter(lambda x : x.getNumber() in LOK_forging_CNCs, CNCs))
     CNCs_LOK_size_hex = tuple(filter(lambda x : x.getNumber() in LOK_hex_CNCs, CNCs))
 
+    garbage = []
 
     for i, j in enumerate(indiv_ref): #차후에 component단위로 배정하는 것으로 변경해야함
 
         result = 0
-
         if j.getLokFittingSize() == 1: #1, 2, 3, 2m, 3m, 4m 인 경우
             if j.getType() == 0:
-                result = assign(j, CNCs_LOK_size_forging, machines, unAssigned, standard)
+                result = assign(j, CNCs_LOK_size_forging, machines, unAssigned, standard, garbage)
             elif j.getType() == 1:
-                result = assign(j, CNCs_LOK_size_hex, machines, unAssigned, standard)
+                result = assign(j, CNCs_LOK_size_hex, machines, unAssigned, standard, garbage)
 
         elif j.getType() == 0:
-            result = assign(j, CNCs_2jaw, machines, unAssigned, standard)
+            result = assign(j, CNCs_2jaw, machines, unAssigned, standard, garbage)
 
         elif j.getType() == 1:
-            result = assign(j, CNCs_3jaw, machines, unAssigned, standard)
+            result = assign(j, CNCs_3jaw, machines, unAssigned, standard, garbage)
 
         elif j.getType() == 2:
-            result = assign(j, CNCs_round, machines, unAssigned, standard)
+            result = assign(j, CNCs_round, machines, unAssigned, standard, garbage)
 
         elif j.getType() == 3:
-            result = assign(j, CNCs_square, machines, unAssigned, standard)
+            result = assign(j, CNCs_square, machines, unAssigned, standard, garbage)
 
         elif j.getType() == 4:
-            result = assign(j, CNCs_valve_pre, machines, unAssigned, standard)
+            result = assign(j, CNCs_valve_pre, machines, unAssigned, standard, garbage)
 
         else:
             print("job type error!")
@@ -156,6 +157,9 @@ def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_h
                 setTimes(comp, standard, machines[n])
                 (machines[n]).attach(comp)
                 comp.assignedTo(cnc)
+    
+    for j in garbage: #합쳐진거 삭제
+        indiv_ref.remove(j)
 
     return machines, unAssigned
 
@@ -168,7 +172,7 @@ def evaluate(individual, normalization, avgs, params, c = None):
     return scaled
 '''
 
-def assign(job, CNCs, machines, unAssigned, standard):
+def assign(job, CNCs, machines, unAssigned, standard, garbage):
     selected_CNCs = []
     type = job.getType()
     if type in [0,1,2]:
@@ -193,6 +197,14 @@ def assign(job, CNCs, machines, unAssigned, standard):
     cnc_number = cnc.getNumber()
     selected_machine = machines[cnc_number]
     #timeLeft = selected_machine.getTimeLeft()
+
+    try:
+        if selected_machine.getAssignment(-1).getJob().getWorkno() == job.getWorkno():
+            selected_machine.mergeJob(job)
+            garbage.append(job)
+            return
+    except Exception as ex:
+        pass
 
     if cnc_number in [39, 40] and job.getLokFitting() == 1: #LOK이 39, 40에 걸린 경우 : 2차는 41, 42에서
         #if selected_machine.getTimeLeft() != 0:  # setting time 설정
@@ -220,7 +232,7 @@ def assign(job, CNCs, machines, unAssigned, standard):
             print("assigning error with job# %s occured %d\n"%(job.getGoodCd(), len(job.getComponents())), ex)
 
     else:
-        for comp in components: #comp1, comp2 연달아 배정(향 후 변경 가능)
+        for comp in components: #comp1, comㅍ p2 연달아 배정(향 후 변경 가능)
             #if selected_machine.getTimeLeft() != 0:  # setting time 설정
             assignSettingTimeComponent(standard, selected_machine, cnc)
             setTimes(comp, standard, selected_machine)
@@ -292,8 +304,17 @@ class Machine:
             if standard + self.getTimeLeft() >= prev.getEndDateTime():
                 self.pending.remove(c)
                 return c
-        return None
 
+    def getAssignment(self, idx):
+        return self.assignments[idx]
+
+    def mergeJob(self, job):
+        for i in range(len(job.getComponents())):
+            comp = self.assignments[-1 - (i * 2)]
+            to_be_merged = (job.getComponents())[-1 - i]
+            comp.addQuantity(to_be_merged.getQuantity())
+            comp.setEndDateTime(comp.getEndDateTime() + to_be_merged.getTime())
+        self.time_left += job.getTime()
 
 def removesTheUnassigned(indiv, unassinged):
     for u in unassinged:

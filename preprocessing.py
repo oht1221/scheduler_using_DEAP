@@ -65,7 +65,7 @@ def dbConnectionCheck():
             break
     return database, username, password
 
-def make_job_pool(job_pool, start, end, database, username, password):
+def make_job_pool(job_pool, start, end, database, username, password, cut, partition_size):
     cursor_job = accessDB.AccessDB(database, username, password)
     cursor_cycletime = accessDB.AccessDB(database, username, password)
     deli_start = copy.deepcopy(start)
@@ -99,7 +99,7 @@ def make_job_pool(job_pool, start, end, database, username, password):
      left outer join TMinor m3 on i.Class3 = m3.MinorCd
      left outer join TMinor m4 on g.Class4 = m4.MinorCd
      where DeliveryDate between """ + deli_start + """ and """ + deli_end + """
-       --and PmsYn = 'N'
+       and PmsYn = 'N'
        and ContractYn = '1'
        --    단조    Hex Bar    Round Bar    Square Bar    VALVE 선작업
        and i.Class3 in ('061038', '061039', '061040', '061048', '061126')
@@ -152,10 +152,10 @@ def make_job_pool(job_pool, start, end, database, username, password):
             LOKFITTINGSIZE = 1
 
         Qty = row[5]
-        if Qty > 500:
+        if Qty > cut:
             while Qty > 0:
-                qty_part = min(500, Qty)
-                Qty -= 500
+                qty_part = min(partition_size, Qty)
+                Qty -= partition_size
                 newJob = Job(workno=workno, goodNo=GoodNo, goodCd=GoodCd, time=cycle_time, type=Gubun, quantity=qty_part,
                              due=due_date_seconds, rawNo=rawMaterialNo, rawCd=rawMaterialCd,
                              size=rawMaterialSize, LOKFITTING=LOKFITTING, LOKFITTINGSIZE=LOKFITTINGSIZE, seperation=True)

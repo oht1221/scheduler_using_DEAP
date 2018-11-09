@@ -123,6 +123,9 @@ class Component:
         self.timeLeft = self.cycleTime * self.quantity
         return self.timeLeft
 
+    def getCycletime(self):
+        return self.cycleTime
+
     def getStartDateTime(self):
         return self.startDateTime
 
@@ -183,6 +186,12 @@ class Component:
 
     def getCnc(self):
         return self.cnc
+
+    def getQuantity(self):
+        return self.quantity
+
+    def addQuantity(self, addition):
+        self.quantity += addition
 """
 class NormalCompoenet(Component):
     def __init__(self, cycleTime, job, quantity):

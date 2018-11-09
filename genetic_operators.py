@@ -4,7 +4,7 @@ import time
 
 def inversion(individual):
     total = len(individual)
-    interval = round(len(individual) / 2)
+    interval = round(len(individual) / 4)
     random.seed(time.time() * 10 % 10)
     start = random.randrange(0, total) #시작점 (왼쪽)
     end = start + interval - 1
@@ -20,7 +20,7 @@ def inversion(individual):
 
 def simple_inversion_mutation(individual):
     total = len(individual)
-    interval = round(len(individual) / 2)
+    interval = round(len(individual) / 4)
     random.seed(time.time() * 10 % 10)
     start = random.randrange(0, total) #시작점 (왼쪽)
     end = start + interval - 1

@@ -110,7 +110,7 @@ def print_out_unit(comp, row, worksheet, color):
     else:
         job = comp.getJob()
         due = datetime.datetime.fromtimestamp(job.getDue()).strftime('%Y-%m-%d %H:%M:%S')
-        quantity = job.getQuantity()
+        quantity = comp.getQuantity()
 
         if comp.isDelayed():
             worksheet.write(row, 0, job.getWorkno(), color)

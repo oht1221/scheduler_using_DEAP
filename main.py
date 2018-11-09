@@ -15,8 +15,8 @@ import displays_results as dr
 CNCs = []
 POP_SIZE = MU = 10
 LAMBDA = 40
-MUTPB = 0.5
-CXPB = 0.5
+MUTPB = 0.4
+CXPB = 0.6
 VALVE_PRE_CNCs = {1, 2, 3, 32, 33, 34, 37, 38, 44}
 LOK_FORGING_CNCs = {10, 15}
 LOK_HEX_CNCs = {8, 9, 11, 12, 13}
@@ -38,7 +38,7 @@ def main():
     standard = input("schedule starts on : ")
     NGEN = int(input("# of gen: "))
 
-    IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password)
+    IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password, 50, 50)
     LEFT_OVER = pp.getLeftOver(database, username, password)
 
     for j in JOB_POOL:
@@ -77,7 +77,7 @@ def main():
     h, m = divmod(m, 60)
 
     print("------------------------------------------Hall of fame------------------------------------------------")
-    for i in range(min(5, len(hof))):
+    for i in range(min(10, len(hof))):
         print(i + 1, hof[i].fitness.values , end = " ")
         print(i + 1, len(hof[i].assignment))
     print("------------------------------------------Hall of fame------------------------------------------------")
@@ -115,9 +115,11 @@ def main():
             print("an error occured! : ", ex)
             continue
 
+
 if __name__ == "__main__":
     #pool = mp.Pool(4)
     #toolbox.register("map")
-    main()
+    while 1:
+        main()
     #pool.close()
     #pool.join()

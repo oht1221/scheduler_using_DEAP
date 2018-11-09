@@ -4,6 +4,7 @@ import time
 from evaluation import pre_evaluate
 from deap import tools, benchmarks, base, creator
 import displays_results as dr
+import matplotlib as mpl
 
 import job
 import copy
@@ -21,7 +22,7 @@ if __name__ == "__main__":
     end = str(input("delivery date till: "))
     standard = input("schedule starts on : ")
 
-    IND_SIZE , no_cycle_time = TOTAL_NUMBER_OF_THE_POOL = pp.make_job_pool(JOB_POOL, start, end, database, username, password)
+    IND_SIZE , no_cycle_time = TOTAL_NUMBER_OF_THE_POOL = pp.make_job_pool(JOB_POOL, start, end, database, username, password, 50, 50)
     LEFT_OVER = pp.getLeftOver(database, username, password)
     pp.read_CNCs('./장비정보.xlsx', CNCs)
 

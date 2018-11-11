@@ -129,7 +129,7 @@ def make_job_pool(job_pool, start, end, database, username, password, cut, parti
         due_date = row[6]
 
         due_date_seconds = time.mktime(
-            (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 16, 0, 0, 0, 0, 0))  # 오후4시 기준
+            (int(due_date[0:4]), int(due_date[4:6]), int(due_date[6:8]), 10, 0, 0, 0, 0, 0))  # 오후4시 기준
         due_date_seconds = int(due_date_seconds)
 
 
@@ -154,8 +154,11 @@ def make_job_pool(job_pool, start, end, database, username, password, cut, parti
         Qty = row[5]
         if Qty > cut:
             while Qty > 0:
-                qty_part = min(partition_size, Qty)
-                Qty -= partition_size
+                if Qty < cut:
+                    qty_part = Qty
+                else:
+                    qty_part = min(partition_size, Qty)
+                Qty -= qty_part
                 newJob = Job(workno=workno, goodNo=GoodNo, goodCd=GoodCd, time=cycle_time, type=Gubun, quantity=qty_part,
                              due=due_date_seconds, rawNo=rawMaterialNo, rawCd=rawMaterialCd,
                              size=rawMaterialSize, LOKFITTING=LOKFITTING, LOKFITTINGSIZE=LOKFITTINGSIZE, seperation=True)

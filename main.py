@@ -38,7 +38,7 @@ def main():
     standard = input("schedule starts on : ")
     NGEN = int(input("# of gen: "))
 
-    IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password, 50, 50)
+    IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password, 100, 50)
     LEFT_OVER = pp.getLeftOver(database, username, password)
 
     for j in JOB_POOL:
@@ -50,7 +50,7 @@ def main():
     #hof = tools.ParetoFront()
     standard_in_datetime = standard
     standard = (lambda x: int(time.time()) if (x == 'now') else time.mktime(
-        (int(x[0:4]), int(x[4:6]), int(x[6:8]), 8, 0, 0, 0, 0, 0)))(standard)
+        (int(x[0:4]), int(x[4:6]), int(x[6:8]), 0, 0, 0, 0, 0, 0)))(standard)
     standard = int(standard)
 
     toolbox.register("schedule", random.sample, range(IND_SIZE), IND_SIZE)

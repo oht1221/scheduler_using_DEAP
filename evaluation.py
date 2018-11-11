@@ -101,7 +101,7 @@ def pre_evaluate(standard, CNCs, job_pool, valve_pre_CNCs, LOK_forging_CNCs,
     '''
     print(fitnesses)
 
-    return [fitnesses, interpreted]
+    return [fitnesses, raw, interpreted]
 
 def interpret(machines, indiv_ref, CNCs, valve_pre_CNCs, LOK_forging_CNCs, LOK_hex_CNCs, standard):
     #for v in machines.values():  # 각 machine에 있는 작업들 제거(초기화)

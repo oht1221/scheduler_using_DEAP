@@ -19,8 +19,10 @@ if __name__ == "__main__":
     start = str(input("delivery date from: "))
     end = str(input("delivery date till: "))
     standard = input("schedule starts on : ")
+    segmentation_cut_off = int(input("segmentation_cut_off: "))
+    segmentation_size = int(input("segmentation_size: "))
 
-    IND_SIZE , no_cycle_time = TOTAL_NUMBER_OF_THE_POOL = pp.make_job_pool(JOB_POOL, start, end, database, username, password, 50, 50)
+    IND_SIZE , no_cycle_time = TOTAL_NUMBER_OF_THE_POOL = pp.make_job_pool(JOB_POOL, start, end, database, username, password, segmentation_cut_off, segmentation_size)
     LEFT_OVER = pp.getLeftOver(database, username, password)
     pp.read_CNCs('./장비정보.xlsx', CNCs)
 

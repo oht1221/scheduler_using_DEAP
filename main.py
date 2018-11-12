@@ -37,8 +37,10 @@ def main():
     end = str(input("delivery date till: "))
     standard = input("schedule starts on : ")
     NGEN = int(input("# of gen: "))
+    segmentation_cutoff = int(input("segmentation cut off: "))
+    partition_size = int(input("the size of a job partition : "))
 
-    IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password, 100, 50)
+    IND_SIZE, no_cycle_time = pp.make_job_pool(JOB_POOL, start, end, database, username, password, segmentation_cutoff, partition_size)
     LEFT_OVER = pp.getLeftOver(database, username, password)
 
     for j in JOB_POOL:
@@ -81,8 +83,8 @@ def main():
         print(i + 1, hof[i].fitness.values , end = " ")
         print(i + 1, len(hof[i].assignment))
     print("------------------------------------------Hall of fame------------------------------------------------")
-    
-    
+
+
     print("NGEN : %d\nMu : %d\nLambda : %d\nMUTPB : %f\nCXPB : %f\n" % (NGEN, MU, LAMBDA, MUTPB, CXPB))
     print("Weights : ", WEIGHTS)
 
